@@ -1,6 +1,7 @@
-from time import sleep
 import psutil
 import subprocess
+from flask import Flask, jsonify
+from flask_restful import Api, Resource
 
 # This function executes "rosnode list" command and returns the output
 def get_node_list():
@@ -70,8 +71,6 @@ def get_total_cpu_usage():
 # open a RESTful server with flask-restful package that returns whole process information on the system
 def open_restful_server():
     # start a Flask web server
-    from flask import Flask, jsonify
-    from flask_restful import Api, Resource
     app = Flask(__name__)
     api = Api(app)
 
