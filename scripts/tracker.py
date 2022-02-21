@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask_restful import Api, Resource
 from system_info import *
 from ros_info import *
+from rospy_info import *
 
     
 
@@ -23,6 +24,15 @@ def open_restful_server():
             # return the json
             return jsonify({'total_memory': total_memory, 'total_cpu_usage': total_cpu_usage, 'network_usage': network_usage})
 
+
+    class Processes(Resource):
+        def get(self):
+            # get the list of processes
+            process_list = get_process_cpu_usage()
+
+            # return the json
+            return jsonify({'process_list': process_list})
+
     class ROS1Info(Resource):
         def get(self):
             # get the list of ros topics
@@ -33,24 +43,23 @@ def open_restful_server():
             node_list = get_node_list()
 
             # return the json
-            return jsonify({'ros_topics': ros_topics, 'ros_services': ros_services, 'node_list': node_list})
-
-    class Processes(Resource):
+            return jsonify({ 'nodes': node_list, 'topics': ros_topics, 'services': ros_services})
+    class ROS1PyInfo(Resource):
         def get(self):
-            # get the list of processes
-            process_list = get_process_cpu_usage()
+            nodes = get_node_list_rosnode()
 
-            # return the json
-            return jsonify({'process_list': process_list})
+            topics = get_topic_list_rosnode()
+
+            services = get_service_list_rospy()
+            return jsonify({'nodes': nodes, "topics": topics, "services": services})
 
     # add the class to the API
     api.add_resource(SystemInfo, '/system')
-    api.add_resource(ROS1Info, '/ros1')
+    api.add_resource(ROS1Info, '/ros1_bash')
     api.add_resource(Processes, '/processes')
+    api.add_resource(ROS1PyInfo, '/ros1_py')
 
     app.run(debug=True)
 
 if __name__ == "__main__":
-    #print(get_process_cpu_usage())
-    #print(get_total_cpu_usage())
     open_restful_server()
