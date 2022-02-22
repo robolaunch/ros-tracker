@@ -104,8 +104,32 @@ class ROS1:
         output = output.split()
         i = 0
         while i < len(output):
-            # convert from bytes to string
-            output[i] = output[i].decode("utf-8")[1:]
+            service_name = output[i].decode("utf-8")
+
+            p2 = Popen(["rosservice", "info", service_name], stdout=PIPE, stderr=PIPE)
+            output2, error2 = p2.communicate()
+            if p2.returncode != 0:
+                return "ERROR! " + error2.decode() + " with error code " + str(p2.returncode)
+            
+            output2 = output2.split()
+            print("---------------------------")
+            print("Splitted topic is: " + str(output2))
+            print("---------------------------")
+
+            # for now
+            # 0 is "Node:"
+            # 1 is the node name
+            # 2 is "URI"
+            # 3 is the URI
+            # 4 is "Type:"
+            # 5 is the type
+            # 6 is "Args:" ###### Will not used
+
+            node_name = output2[1].decode("utf-8")
+            uri = output2[3].decode("utf-8")
+            type_of_service = output2[5].decode("utf-8")
+            
+            output[i] = {"service_name": service_name, "node_name": node_name, "uri": uri, "type": type_of_service}
             i += 1
         return output
 
