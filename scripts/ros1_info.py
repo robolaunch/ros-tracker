@@ -31,7 +31,9 @@ class ROS1:
         i = 0
         while i < len(output):
             # convert from bytes to string
-            output[i] = output[i].decode("utf-8")[1:]
+            output_together = output[i].decode("utf-8")
+            # separate namespace
+            output[i] = {"namespace": output_together[:output_together.find('/')+1], "node_name": output_together[output_together.find('/')+1:]}
             i += 1
         return output
 
