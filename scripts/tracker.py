@@ -31,17 +31,26 @@ def open_restful_server():
             # return the json
             return jsonify({'process_list': process_list})
 
-    class ROS1Info(Resource):
+    class ROS1Topic(Resource):
         def get(self):
             # get the list of ros topics
             ros_topics = ROS1.getTopics()
+            # return the json
+            return jsonify({'topics': ros_topics})
+    
+    class ROS1Service(Resource):
+        def get(self):
             # get the list of ros services
             ros_services = ROS1.getServices()
+            # return the json
+            return jsonify({'services': ros_services})
+
+    class ROS1Nodes(Resource):
+        def get(self):
             # get the list of running nodes
             node_list = ROS1.getNodes()
-
             # return the json
-            return jsonify({ 'nodes': node_list, 'topics': ros_topics, 'services': ros_services})
+            return jsonify({'nodes': node_list})
 
     class ROS1NetworkInfo(Resource):
         def get(self):
@@ -53,9 +62,12 @@ def open_restful_server():
 
     # add the class to the API
     api.add_resource(SystemInfo, '/system')
-    api.add_resource(ROS1Info, '/ros1')
+    api.add_resource(ROS1Topic, '/ros1/topics')
+    api.add_resource(ROS1Service, '/ros1/services')
+    api.add_resource(ROS1Nodes, '/ros1/nodes')
     api.add_resource(ROS1NetworkInfo, '/ros1/network')
     api.add_resource(Processes, '/processes')
+
     app.run(debug=True)
 
 if __name__ == "__main__":

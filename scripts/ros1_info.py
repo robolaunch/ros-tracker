@@ -22,9 +22,6 @@ class ROS1:
                 return "ERROR! " + error2.decode() + " with error code " + str(p2.returncode)
             
             output2 = output2.split()
-            print("---------------------------")
-            print("Splitted topic is: " + str(output2))
-            print("---------------------------")
 
             # for now
             # 0 is "Type"
@@ -46,7 +43,6 @@ class ROS1:
                 if output2[publisher_cnt].decode("utf-8") != "*":
                     if output2[publisher_cnt].decode("utf-8") == "None":
                         publisher_cnt += 1
-                    print("Different!", output2[publisher_cnt])
                     break
                 
                 publisher_name = output2[publisher_cnt+1].decode("utf-8")
@@ -62,7 +58,6 @@ class ROS1:
                     break
                 # that means subscribers are over
                 if output2[subscribers_cnt].decode("utf-8") != "*":
-                    print("Different!", output2[subscribers_cnt])
 
                     break
                 
@@ -112,9 +107,6 @@ class ROS1:
                 return "ERROR! " + error2.decode() + " with error code " + str(p2.returncode)
             
             output2 = output2.split()
-            print("---------------------------")
-            print("Splitted topic is: " + str(output2))
-            print("---------------------------")
 
             # for now
             # 0 is "Node:"
