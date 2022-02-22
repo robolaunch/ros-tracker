@@ -8,3 +8,9 @@ Just install a version of twisted 19.7.0 or above, and you should be good to go.
  ```sh
   pip3 install twisted==19.7.0
   ```
+
+This is not the first and last of the errors, I encountered another one
+```sh
+   dropping connection to peer tcp4:127.0.0.1:11311 with abort=True: WebSocket connection upgrade failed (501 - Unsupportedmethod('GET'))  
+  ```
+Again, there is not much information in the internet, I guess roslibpy is not well maintained for higher Python versions and will try with a lower Python version tomorrow.
