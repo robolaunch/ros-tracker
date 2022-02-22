@@ -1,10 +1,12 @@
 from subprocess import Popen, PIPE
 import os
+import line_profiler
 
 # This class is just to wrap ROS1 functions into one structure
 class ROS1:
 
     # This function gets the current ros topics with the command "rostopic list"
+    #@profile
     def getTopics():
         p = Popen(["rostopic", "list"], stdout=PIPE, stderr=PIPE)
         output, error = p.communicate()
@@ -72,8 +74,8 @@ class ROS1:
             i += 1
         return output
 
-
     # This function executes "rosnode list" command and returns the output
+    #@profile
     def getNodes():
         p = Popen(["rosnode", "list"], stdout=PIPE, stderr=PIPE)
         output, error = p.communicate()
@@ -90,6 +92,7 @@ class ROS1:
         return output
 
     # This function gets the current ros services with the command "rosservice list"
+    #@profile
     def getServices():
         p = Popen(["rosservice", "list"], stdout=PIPE, stderr=PIPE)
         output, error = p.communicate()
@@ -126,6 +129,7 @@ class ROS1:
         return output
 
     # This function gets the current ROS hostname and port
+    #@profile
     def getHostnamePort():
         address = os.environ.get("ROS_MASTER_URI")
         # http://localhost:11311
@@ -135,3 +139,4 @@ class ROS1:
         address = address[7:]
         address = address.split(':')
         return address
+
