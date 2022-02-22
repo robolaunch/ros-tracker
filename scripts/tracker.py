@@ -1,13 +1,10 @@
 from flask import Flask, jsonify
 from flask_restful import Api, Resource
 from system_info import *
-from ros_info import *
-from rospy_info import *
-from roslib_info import *
+from ros1_info import *
 
     
 
-# open a RESTful server with flask-restful package that returns whole process information on the system
 def open_restful_server():
     # start a Flask web server
     app = Flask(__name__)
@@ -45,31 +42,12 @@ def open_restful_server():
 
             # return the json
             return jsonify({ 'nodes': node_list, 'topics': ros_topics, 'services': ros_services})
-    class ROS1PyInfo(Resource):
-        def get(self):
-            nodes = get_node_list_rosnode()
 
-            topics = get_topic_list_rosnode()
-
-            services = get_service_list_rospy()
-            return jsonify({'nodes': nodes, "topics": topics, "services": services})
-
-    class ROSLibInfo(Resource):
-        def get(self):
-            nodes = get_node_list_roslib()
-
-            topics = get_topic_list_roslib()
-
-            services = get_service_list_roslib()
-            return jsonify({'nodes': nodes, "topics": topics, "services": services})
 
     # add the class to the API
     api.add_resource(SystemInfo, '/system')
     api.add_resource(ROS1Info, '/ros1_bash')
     api.add_resource(Processes, '/processes')
-    api.add_resource(ROS1PyInfo, '/ros1_py')
-    api.add_resource(ROSLibInfo, '/roslib')
-
     app.run(debug=True)
 
 if __name__ == "__main__":
