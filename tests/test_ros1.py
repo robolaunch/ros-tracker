@@ -1,13 +1,13 @@
 import sys
-from helpers import getTogetherTests
+from helpers import getTogetherTests, compareDictionaries
 import pytest
 import json
 
 # insert at 1, 0 is the script path (or '' in REPL)
-sys.path.insert(1, 'scripts/')
+sys.path.insert(1, '../scripts/')
 
-from globals import CannotParseError
 from ros1_info import ROS1
+from globals import CannotParseError
 
 # this class is used to test the ROS1 class
 class TestROS1:
@@ -16,6 +16,7 @@ class TestROS1:
     def test_parseTopic(self, test_input, expected):
         # parse the test string
         parsed_topics = ROS1.parseTopic(test_input)
+        print("parseTopic: " + str(parsed_topics))
         # compare the parsed topics with the expected result
         assert parsed_topics == json.loads(expected)
 

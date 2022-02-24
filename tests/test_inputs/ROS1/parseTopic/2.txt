@@ -1,0 +1,13 @@
+Type: rosgraph_msgs/Log
+
+Publishers: 
+ * /base_link_to_camera_link (http://alp-R2D2:45815/)
+ * /robot_state_publisher (http://alp-R2D2:39269/)
+ * /base_controller_spawner (http://alp-R2D2:44463/)
+ * /gazebo (http://alp-R2D2:44297/)
+ * /gazebo_gui (http://alp-R2D2:44979/)
+
+Subscribers: 
+ * /rosout (http://alp-R2D2:43755/)
+
+

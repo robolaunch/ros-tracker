@@ -1,0 +1,32 @@
+{
+    "type": "rosgraph_msgs/Log", 
+    "publishers": [
+        {
+            "name": "/base_link_to_camera_link", 
+            "uri": "(http://alp-R2D2:45815/)"
+        }, 
+        {
+            "name": "/robot_state_publisher", 
+            "uri": "(http://alp-R2D2:39269/)"
+        }, 
+        {
+            "name": "/base_controller_spawner", 
+            "uri": "(http://alp-R2D2:44463/)"
+        }, 
+        {
+            "name": "/gazebo", 
+            "uri": "(http://alp-R2D2:44297/)"
+        }, 
+        {
+            "name": "/gazebo_gui",
+            "uri": "(http://alp-R2D2:44979/)"
+        }
+    ], 
+    "subscribers": 
+    [
+        {
+            "name": "/rosout", 
+            "uri": "(http://alp-R2D2:43755/)"
+        }
+    ]
+}
