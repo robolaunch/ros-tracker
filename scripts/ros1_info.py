@@ -1,10 +1,14 @@
 from subprocess import Popen, PIPE
 import os
+import globals
 
 # This class is just to wrap ROS1 functions into one structure
 class ROS1:
 
     def parseTopic(string):
+        if isinstance(string, (bytes, bytearray)):
+            string = string.decode("utf-8") # just if the data comes from a byte array
+
         splitted = string.split()
 
         # for now
@@ -17,40 +21,48 @@ class ROS1:
         # 6 is * if there are more publishers
         # otherwise, it is "Subscribers:" 
         # the same loop again...
+        try:
+            type_of_topic = splitted[1]
+        except IndexError:
+            raise globals.CannotParseError
 
-        type_of_topic = splitted[1].decode("utf-8")
+        if splitted[0] != "Type:" or splitted[2] != "Publishers:":
+            raise globals.CannotParseError
 
         publisher_cnt = 3
         publishers = []
         while True:
+            if publisher_cnt >= len(splitted):
+                raise globals.CannotParseError
             # that means publishers are over
-            if splitted[publisher_cnt].decode("utf-8") != "*":
-                if splitted[publisher_cnt].decode("utf-8") == "None":
+            if splitted[publisher_cnt] != "*":
+                if splitted[publisher_cnt] == "None":
                     publisher_cnt += 1
                 break
             
-            publisher_name = splitted[publisher_cnt+1].decode("utf-8")
-            publisher_uri = splitted[publisher_cnt+2].decode("utf-8")
+            publisher_name = splitted[publisher_cnt+1]
+            publisher_uri = splitted[publisher_cnt+2]
             publishers.append({"name": publisher_name, "uri": publisher_uri})
 
             publisher_cnt += 3
 
+        if splitted[publisher_cnt] != "Subscribers:":
+            raise globals.CannotParseError
+            
         subscribers_cnt = publisher_cnt + 1
-        subscribers = []
+        subscribers = []        
         while True:
             if subscribers_cnt >= len(splitted):
                 break
             # that means subscribers are over
-            if splitted[subscribers_cnt].decode("utf-8") != "*":
-
+            if splitted[subscribers_cnt] != "*":
                 break
             
-            subscriber_name = splitted[subscribers_cnt+1].decode("utf-8")
-            subscriber_uri = splitted[subscribers_cnt+2].decode("utf-8")
+            subscriber_name = splitted[subscribers_cnt+1]
+            subscriber_uri = splitted[subscribers_cnt+2]
             subscribers.append({"name": subscriber_name, "uri": subscriber_uri})
 
             subscribers_cnt += 3
-
 
         return {"type": type_of_topic, "publishers": publishers, "subscribers": subscribers}
     # This function gets the current ros topics with the command "rostopic list"
