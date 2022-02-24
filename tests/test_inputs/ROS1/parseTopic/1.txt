@@ -1,0 +1,8 @@
+Type: std_msgs/String
+
+Publishers: 
+ * /KAE_Metrics_53869_1645738642800 (http://alp-R2D2:44067/)
+
+Subscribers: None
+
+

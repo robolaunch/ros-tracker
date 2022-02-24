@@ -1,0 +1,10 @@
+{
+    "type": "std_msgs/String", 
+    "publishers": [
+        {
+            "name": "/KAE_Metrics_53869_1645738642800", 
+            "uri": "(http://alp-R2D2:44067/)"
+        }
+    ], 
+    "subscribers": []
+}
