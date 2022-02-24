@@ -35,7 +35,6 @@ if ROS_VERSION == 1:
     class ServiceThread():
 
         def loop():
-            print("update thread started")
             global topics, services, nodes, hostname, port, memory_usage, cpu_usage, network_usage, process_list
             while True:
                 temp_topics = ROS1.getTopics()
