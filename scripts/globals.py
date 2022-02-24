@@ -4,9 +4,19 @@ from ros1_info import ROS1
 from ros2_info import ROS2
 from system_info import *
 import time
+import os
 
+ROS_VERSION = None
 UPDATE_FREQUENCY = 0.1
-ROS_VERSION = 2
+
+
+__ros_distro = os.environ['ROS_DISTRO']
+if __ros_distro == 'kinetic' or __ros_distro == 'melodic' or __ros_distro == 'noetic':
+    ROS_VERSION = 1
+elif __ros_distro == 'foxy' or __ros_distro == 'dashing' or __ros_distro == 'galactic':
+    ROS_VERSION = 2
+
+
 
 general_lock = Lock()
 topics = None
