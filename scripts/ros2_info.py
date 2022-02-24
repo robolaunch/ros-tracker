@@ -112,7 +112,6 @@ class ROS2:
     # This function executes "rosnode list" command and returns the output
     #@profile
     def getNodes():
-        print("getting ros2 nodes")
         p = Popen(["ros2", "node", "list"], stdout=PIPE, stderr=PIPE)
         output, error = p.communicate()
         if p.returncode != 0:
@@ -120,24 +119,18 @@ class ROS2:
 
         output = output.split()
         i = 0
-        print("output is " + str(output))
 
         while i < len(output):
-            print("i is " + str(i))
             output_together = output[i].decode("utf-8")
 
-            print("node name is " + output_together)
             p2 = Popen(["ros2", "node", "info", output_together], stdout=PIPE, stderr=PIPE)
             p2.wait()
             p2.wait()
             output2, error = p2.communicate()
-            print("executed")
             if p2.returncode != 0:
-                print("ERROR! " + error.decode() + " with error code " + str(p2.returncode))
                 return "ERROR! " + error.decode() + " with error code " + str(p2.returncode)
             
             output2 = output2.split()
-            print("output2 is " + str(output2))
             """
             i = 0
             while i < len(output2):
@@ -178,8 +171,6 @@ class ROS2:
             index = 2
             subscribers = []
             while True:
-                print("subscriber:" + str(index))
-                print("output2[index] is " + str(output2[index]))
                 if output2[index].decode("utf-8") == "Publishers:":
                     break
                 # topic and its topic together
@@ -192,8 +183,6 @@ class ROS2:
             # now get publishers
             publishers = []
             while True:
-                print("publisher:" + str(index))
-                print("output2[index] is " + str(output2[index]))
                 if output2[index].decode("utf-8") == "Service":
                     break
                 # topic and its topic together
