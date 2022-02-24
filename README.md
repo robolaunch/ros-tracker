@@ -29,3 +29,39 @@ ROS1 and ROS2 outputs are completely different. For now, it only gives the CLI i
 
 For fast check, you can execute `curl http://127.0.0.1:5000/ros2/topics` and inspect the output to see if the server is running and functioning.
 
+- [ ] System Info
+- - [X] Total CPU usage
+- - [ ] Each core usage
+- - [X] Memory usage
+- - [X] Network usage
+- - [ ] Some network statistics may be needed here?
+- - [ ] Uptime
+- [ ] Process Info
+- - [X] Process name
+- - [X] Process PID
+- - [ ] Process CPU usage(this is actually given, but current data can be incostistent. Needs further consideration.)
+- [X] ROS2 Topics (All data that CLI gives are included here.)
+- - [X] Publisher count
+- - [X] Publisher nodes along with all QoS information that `ros2 topic info -v` gives(this part needs a check and feedback from network people)
+- - [X] Subscriber count
+- - [X] Subscriber nodes along with QoS information
+- [ ] ROS2 Services
+- [ ] ROS2 Nodes
+- [ ] ROS2 Actions
+- [ ] ROS2 Network
+- [X] ROS1 Topics
+- - [X] Publisher nodes and URIs(I think these URIs are special for topics and services, but need to check)
+- - [X] Subscriber nodes and URIs
+- [X] ROS1 Services
+- - [X] Server Node
+- - [X] Service Type
+- - [X] Service URI
+- [X] ROS1 Network
+- - [X] Roscore hostname (needs to be checked)
+- - [X] Roscore port
+- [ ] Others
+- - [ ] Latency
+- - [ ] Publisher/Subscriber throughput
+- - [ ] Heartbeat count
+- - [ ] GPU usage
+- - [ ] Network info other than ROS2 gives for QoS
