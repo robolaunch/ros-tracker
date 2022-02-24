@@ -46,4 +46,29 @@ def getTogetherTests(input_dir, output_dir):
         # return the list
         return together_tests
 
+# this function compares two dictionaries
+# there are two list inputs, must_be_true and probably_false
+# if the key is in the must_be_true list, it must be in the both dictionary, and the value must be equal to the value in the other dictionary
+# if the key is in the probably_false list, it must be in the both dictionary, but the value must not be equal to the value in the other dictionary
+# function will return true or false
+def compareDictionaries(dict1, dict2, must_be_true, probably_false):
+    # for each key in the first dictionary
+    for key in dict1:
+        # if the key is in the must_be_true list
+        if key in must_be_true:
+            # if the key is not in the second dictionary
+            if key not in dict2:
+                return False
+            # if the key is in the second dictionary
+            else:
+                # if the value of the key in the first dictionary is not equal to the value of the key in the second dictionary
+                if dict1[key] != dict2[key]:
+                    return False
+        # if the key is in the probably_false list
+        elif key in probably_false:
+            # if the key is not in the second dictionary
+            if key not in dict2:
+                return False
+    return True
+
 #print(getTogetherTests("test_inputs/ROS1/parseTopics", "test_outputs/ROS1/parseTopics"))
