@@ -10,7 +10,7 @@ class ROS2:
 
     # This function gets the current ros topics with the command "rostopic list"
     #@profile
-    def getTopics():
+    def getTopics(): # lgtm [py/not-named-self]
         p = Popen(["ros2", "topic", "list", "--include-hidden-topics"], stdout=PIPE, stderr=PIPE)
         output, error = p.communicate()
         if p.returncode != 0:
@@ -111,7 +111,7 @@ class ROS2:
 
     # This function executes "rosnode list" command and returns the output
     #@profile
-    def getNodes():
+    def getNodes(): # lgtm [py/not-named-self]
         p = Popen(["ros2", "node", "list"], stdout=PIPE, stderr=PIPE)
         output, error = p.communicate()
         if p.returncode != 0:
@@ -234,7 +234,7 @@ class ROS2:
 
     # This function gets the current ros services with the command "rosservice list"
     #@profile
-    def getServices():
+    def getServices(): # lgtm [py/not-named-self]
         p = Popen(["rosservice", "list"], stdout=PIPE, stderr=PIPE)
         output, error = p.communicate()
         if p.returncode != 0:
@@ -271,7 +271,7 @@ class ROS2:
 
     # This function gets the current ROS hostname and port
     #@profile
-    def getHostnamePort():
+    def getHostnamePort(): # lgtm [py/not-named-self]
         address = os.environ.get("ROS_MASTER_URI")
         # http://localhost:11311
         if address[:7] != "http://":

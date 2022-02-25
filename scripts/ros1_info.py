@@ -5,7 +5,7 @@ import globals
 # This class is just to wrap ROS1 functions into one structure
 class ROS1:
 
-    def parseTopic(string):
+    def parseTopic(string): # lgtm [py/not-named-self]
         if isinstance(string, (bytes, bytearray)):
             string = string.decode("utf-8") # just if the data comes from a byte array
 
@@ -67,7 +67,7 @@ class ROS1:
         return {"type": type_of_topic, "publishers": publishers, "subscribers": subscribers}
     
     # This function gets the current ros topics with the command "rostopic list"
-    def getTopics():
+    def getTopics(): # lgtm [py/not-named-self]
         p = Popen(["rostopic", "list"], stdout=PIPE, stderr=PIPE)
         stdout_list, stderr_list = p.communicate()
         if p.returncode != 0:
@@ -91,7 +91,7 @@ class ROS1:
             i += 1
         return parsed_topics
 
-    def parseNode(string):
+    def parseNode(string): # lgtm [py/not-named-self]
         if isinstance(string, (bytes, bytearray)):
             string = string.decode("utf-8") # just if the data comes from a byte array
 
@@ -116,7 +116,7 @@ class ROS1:
         return parsed_node_info
     
     # This function executes "rosnode list" command and returns the output
-    def getNodes():
+    def getNodes(): # lgtm [py/not-named-self]
         p = Popen(["rosnode", "list"], stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
         if p.returncode != 0:
@@ -124,7 +124,7 @@ class ROS1:
 
         return ROS1.parseNode(stdout)
 
-    def parseService(string):
+    def parseService(string): # lgtm [py/not-named-self]
         if isinstance(string, (bytes, bytearray)):
             string = string.decode("utf-8") # just if the data comes from a byte array
         splitted = string.split()
@@ -151,7 +151,7 @@ class ROS1:
         return {"node_name": node_name, "uri": uri, "type": type_of_service}
 
     # This function gets the current ros services with the command "rosservice list"
-    def getServices():
+    def getServices(): # lgtm [py/not-named-self]
         p = Popen(["rosservice", "list"], stdout=PIPE, stderr=PIPE)
         stdout_list, stderr_list = p.communicate()
         if p.returncode != 0:
@@ -173,7 +173,7 @@ class ROS1:
         return service_list_splitted
 
     # This function gets the current ROS hostname and port
-    def getHostnamePort():
+    def getHostnamePort(): # lgtm [py/not-named-self]
         try:
             address = os.environ.get("ROS_MASTER_URI")
         except:
