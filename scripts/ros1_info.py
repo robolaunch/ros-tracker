@@ -93,13 +93,23 @@ class ROS1:
 
 
     def parseNode(string):
+        if isinstance(string, (bytes, bytearray)):
+            string = string.decode("utf-8") # just if the data comes from a byte array
+
         splitted = string.split()
         parsed_node_info = []
+        if len(splitted) == 0:
+            raise globals.CannotParseError
         i = 0
         while i < len(splitted):
-            output_together = splitted[i].decode("utf-8")
+            output_together = splitted[i]
+            if output_together[0] != '/':
+                raise globals.CannotParseError
             # separate namespace
-            parsed_node_info.append({"namespace": output_together[:output_together.find('/')+1], "node_name": output_together[output_together.find('/')+1:]})
+            try:
+                parsed_node_info.append({"namespace": output_together[:output_together.find('/')+1], "node_name": output_together[output_together.find('/')+1:]})
+            except:
+                raise globals.CannotParseError
             i += 1
         return parsed_node_info
     
