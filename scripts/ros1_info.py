@@ -1,6 +1,7 @@
 from subprocess import Popen, PIPE
 import os
 import globals
+import time
 
 # This class is just to wrap ROS1 functions into one structure
 class ROS1:
@@ -91,7 +92,6 @@ class ROS1:
             i += 1
         return parsed_topics
 
-
     def parseNode(string):
         if isinstance(string, (bytes, bytearray)):
             string = string.decode("utf-8") # just if the data comes from a byte array
@@ -141,6 +141,9 @@ class ROS1:
 
         if len(splitted) < 6:
             raise globals.CannotParseError
+        
+        if splitted[0] != "Node:" or splitted[2] != "URI:" or splitted[4] != "Type:" or splitted[6] != "Args:":
+            raise globals.CannotParseError
 
         node_name = splitted[1]
         uri = splitted[3]
@@ -153,7 +156,7 @@ class ROS1:
         p = Popen(["rosservice", "list"], stdout=PIPE, stderr=PIPE)
         stdout_list, stderr_list = p.communicate()
         if p.returncode != 0:
-            return "ERROR! " + stderr_list.decode() + " with error code " + str(p.returncode)
+            raise globals.CannotParseError
 
         service_list_splitted = stdout_list.split()
         i = 0
@@ -163,8 +166,8 @@ class ROS1:
             p2 = Popen(["rosservice", "info", service_name], stdout=PIPE, stderr=PIPE)
             stdout_info, stderr_info = p2.communicate()
             if p2.returncode != 0:
-                return "ERROR! " + stderr_info.decode() + " with error code " + str(p2.returncode)
-            
+                raise globals.CannotParseError
+
             service_list_splitted[i] = ROS1.parseService(stdout_info)
             service_list_splitted[i]["service_name"] = service_name
             i += 1
@@ -180,4 +183,3 @@ class ROS1:
         address = address[7:]
         address = address.split(':')
         return address
-

@@ -57,7 +57,7 @@ class TestROS1:
         ROS1.getTopics()
 
     # getTopics should raise NoROScoreError if there is no roscore process
-    def test_getTopics_Exception(aa):
+    def test_getTopics_Exception(self):
         with pytest.raises(NoROScoreError):
             ROS1.getTopics()
 
@@ -98,7 +98,7 @@ class TestROS1:
         ROS1.getNodes()
 
     # getTopics should raise NoROScoreError if there is no roscore process
-    def test_getNodes_Exception(aa):
+    def test_getNodes_Exception(self):
         with pytest.raises(NoROScoreError):
             ROS1.getNodes()
     
@@ -118,12 +118,12 @@ class TestROS1:
             # parse the test string
             ROS1.parseService(test_input)
     
-    """
     @pytest.mark.parametrize("test_input, expected",
                             [["rosout", "42"],  # completely different format
-                            ["/rosout\n/robot\ncontroller", "42"]])
+                            ["/rosout\n/robot\ncontroller", "42"],
+                            ["Node: /gazebo/XX\nURI:rosrpc://alp-R2D2:44039\nType: controller_manager_msgs/LoadController\nArgs: name\n", "42"]])
     def test_parseService_CorruptedString(self, test_input, expected):
         with pytest.raises(CannotParseError):
             # parse the test string
             ROS1.parseService(test_input)
-    """
+    
