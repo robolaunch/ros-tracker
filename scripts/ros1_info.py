@@ -106,8 +106,11 @@ class ROS1:
             if output_together[0] != '/':
                 raise globals.CannotParseError
             # separate namespace
+            #output_together = output_together[1:] # separating the first '/'
             try:
-                parsed_node_info.append({"namespace": output_together[:output_together.find('/')+1], "node_name": output_together[output_together.find('/')+1:]})
+                parsed_node_info.append({"namespace": output_together[:output_together.rfind('/')], "node_name": output_together[output_together.rfind('/')+1:]})
+                if parsed_node_info[-1]["namespace"] == "":
+                    parsed_node_info[-1]["namespace"] = '/'
             except:
                 raise globals.CannotParseError
             i += 1

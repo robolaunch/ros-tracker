@@ -1,0 +1,6 @@
+/base_controller_spawner
+/base_link_to_camera_link
+/gazebo
+/gazebo_gui
+/robot_state_publisher
+/rosout

@@ -1,0 +1,26 @@
+[
+    {
+        "namespace": "/robolaunch", 
+        "node_name": "base_controller_spawner"
+    },
+    {
+        "namespace": "/****", 
+        "node_name": "base_link_to_camera_link"
+    },
+    {
+        "namespace": "/!!!!", 
+        "node_name": "gazebo"
+    },
+    {
+        "namespace": "/KAE", 
+        "node_name": "gazebo_gui"
+    },
+    {
+        "namespace": "/", 
+        "node_name": "robot_state_publisher"
+    },
+    {
+        "namespace": "/42", 
+        "node_name": "rosout"
+    }
+]

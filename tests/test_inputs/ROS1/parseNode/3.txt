@@ -1,0 +1,6 @@
+/robolaunch/base_controller_spawner
+/****/base_link_to_camera_link
+/!!!!/gazebo
+/KAE/gazebo_gui
+/robot_state_publisher
+/42/rosout

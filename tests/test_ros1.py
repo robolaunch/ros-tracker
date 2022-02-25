@@ -47,7 +47,7 @@ class TestROS1:
     @pytest.fixture()
     def roscore(self):
         p = Popen(["roscore"], stdout=PIPE, stderr=PIPE)
-        time.sleep(1) # there needs to be some time before roscore opens and becomes functional
+        time.sleep(2) # there needs to be some time before roscore opens and becomes functional
         yield
         p.terminate()
 
@@ -58,8 +58,37 @@ class TestROS1:
 
     # getTopics should raise NoROScoreError if there is no roscore process
     def test_getTopics_Exception(aa):
-        print("what is aa: " + str(aa))
         with pytest.raises(NoROScoreError):
             ROS1.getTopics()
+
+    
+    ############ parseNode tests ############
+    @pytest.mark.parametrize("test_input, expected", getTogetherTests("test_inputs/ROS1/parseNode", "test_outputs/ROS1/parseNode"))
+    def test_parseNode(self, test_input, expected):
+        # parse the test string
+        parsed_nodes = ROS1.parseNode(test_input)
+        print("parsed_nodes: ")
+        print(parsed_nodes)
+        print("expected is: ")
+        print(expected)
+        # compare the parsed nodes with the expected result
+        assert parsed_nodes == json.loads(expected)
+    
+    @pytest.mark.parametrize("test_input, expected", [["", ""]])
+    def test_parseNode_EmptyString(self, test_input, expected):
+        with pytest.raises(CannotParseError):
+            # parse the test string
+            ROS1.parseNode(test_input)
+
+
+    @pytest.mark.parametrize("test_input, expected",
+                            [["rosout", "42"],  # completely different format
+                            ["/rosout\n/robot\ncontroller", "42"],
+                            ["/rosout robot", "42"]
+                            ])     
+    def test_parseNode_CorruptedString(self, test_input, expected):
+        with pytest.raises(CannotParseError):
+            # parse the test string
+            ROS1.parseNode(test_input)
 
     
