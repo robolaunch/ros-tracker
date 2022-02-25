@@ -1,7 +1,6 @@
 from subprocess import Popen, PIPE
 import os
 import globals
-import time
 
 # This class is just to wrap ROS1 functions into one structure
 class ROS1:

@@ -1,10 +1,10 @@
 from flask import Flask, jsonify
 from flask_restful import Api, Resource
-from system_info import *
-from ros1_info import *
-from ros2_info import *
+from system_info import get_memory_usage, get_network_usage_dict, get_process_cpu_usage, get_total_cpu_usage
+from ros1_info import ROS1
+from ros2_info import ROS2
 import globals
-from threading import Thread, Lock
+from threading import Thread
 import time
 from std_msgs.msg import String
 
@@ -221,7 +221,7 @@ def open_restful_server():
         api.add_resource(ROS2NetworkInfo, '/ros2/network')
 
 
-    app.run(debug=True)
+    app.run()
 
 if __name__ == "__main__":
     openParameterUpdateThread()
