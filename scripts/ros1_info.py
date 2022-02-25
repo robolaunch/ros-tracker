@@ -122,10 +122,12 @@ class ROS1:
         stdout, stderr = p.communicate()
         if p.returncode != 0:
             raise globals.NoROScoreError
-            
+
         return ROS1.parseNode(stdout)
 
     def parseService(string):
+        if isinstance(string, (bytes, bytearray)):
+            string = string.decode("utf-8") # just if the data comes from a byte array
         splitted = string.split()
 
         # for now
@@ -137,9 +139,12 @@ class ROS1:
         # 5 is the type
         # 6 is "Args:" ###### Will not used
 
-        node_name = splitted[1].decode("utf-8")
-        uri = splitted[3].decode("utf-8")
-        type_of_service = splitted[5].decode("utf-8")
+        if len(splitted) < 6:
+            raise globals.CannotParseError
+
+        node_name = splitted[1]
+        uri = splitted[3]
+        type_of_service = splitted[5]
         
         return {"node_name": node_name, "uri": uri, "type": type_of_service}
 

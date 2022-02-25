@@ -1,0 +1,5 @@
+{
+    "node_name": "/rosout",
+    "uri": "rosrpc://alp-R2D2:43237", 
+    "type": "roscpp/GetLoggers"
+}

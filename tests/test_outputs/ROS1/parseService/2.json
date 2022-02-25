@@ -1,0 +1,5 @@
+{
+    "node_name": "/gazebo",
+    "uri": "rosrpc://alp-R2D2:44039", 
+    "type": "gazebo_msgs/ApplyBodyWrench"
+}

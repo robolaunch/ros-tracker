@@ -1,0 +1,4 @@
+Node: /gazebo
+URI: rosrpc://alp-R2D2:44039
+Type: gazebo_msgs/ApplyBodyWrench
+Args: body_name reference_frame reference_point wrench start_time duration

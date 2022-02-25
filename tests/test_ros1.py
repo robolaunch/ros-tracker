@@ -102,3 +102,28 @@ class TestROS1:
         with pytest.raises(NoROScoreError):
             ROS1.getNodes()
     
+    ############ parseService tests ############
+    @pytest.mark.parametrize("test_input, expected", getTogetherTests("test_inputs/ROS1/parseService", "test_outputs/ROS1/parseService"))
+    def test_parseService(self, test_input, expected):
+        # parse the test string
+        parsed_services = ROS1.parseService(test_input)
+        print("parsed_services: ")
+        print(parsed_services)
+        # compare the parsed services with the expected result
+        assert parsed_services == json.loads(expected)
+
+    @pytest.mark.parametrize("test_input, expected", [["", ""]])
+    def test_parseService_EmptyString(self, test_input, expected):
+        with pytest.raises(CannotParseError):
+            # parse the test string
+            ROS1.parseService(test_input)
+    
+    """
+    @pytest.mark.parametrize("test_input, expected",
+                            [["rosout", "42"],  # completely different format
+                            ["/rosout\n/robot\ncontroller", "42"]])
+    def test_parseService_CorruptedString(self, test_input, expected):
+        with pytest.raises(CannotParseError):
+            # parse the test string
+            ROS1.parseService(test_input)
+    """

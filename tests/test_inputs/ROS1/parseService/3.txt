@@ -1,0 +1,4 @@
+Node: /gazebo/XX
+URI: rosrpc://alp-R2D2:44039
+Type: controller_manager_msgs/LoadController
+Args: name

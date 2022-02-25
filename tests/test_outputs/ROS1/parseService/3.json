@@ -1,0 +1,5 @@
+{
+    "node_name": "/gazebo/XX",
+    "uri": "rosrpc://alp-R2D2:44039", 
+    "type": "controller_manager_msgs/LoadController"
+}
