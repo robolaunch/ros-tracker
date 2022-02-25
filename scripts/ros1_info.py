@@ -156,7 +156,7 @@ class ROS1:
         p = Popen(["rosservice", "list"], stdout=PIPE, stderr=PIPE)
         stdout_list, stderr_list = p.communicate()
         if p.returncode != 0:
-            raise globals.CannotParseError
+            raise globals.NoROScoreError
 
         service_list_splitted = stdout_list.split()
         i = 0
@@ -166,7 +166,7 @@ class ROS1:
             p2 = Popen(["rosservice", "info", service_name], stdout=PIPE, stderr=PIPE)
             stdout_info, stderr_info = p2.communicate()
             if p2.returncode != 0:
-                raise globals.CannotParseError
+                raise globals.NoROScoreError
 
             service_list_splitted[i] = ROS1.parseService(stdout_info)
             service_list_splitted[i]["service_name"] = service_name

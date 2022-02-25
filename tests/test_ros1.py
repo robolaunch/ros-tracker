@@ -50,7 +50,8 @@ class TestROS1:
         time.sleep(2) # there needs to be some time before roscore opens and becomes functional
         yield
         p.terminate()
-
+        time.sleep(2)
+        
     # a test that uses roscore fixture, then checks if the getTopics method runs without no exceptions
     @pytest.mark.usefixtures("roscore")
     def test_getTopics(roscore):
@@ -127,3 +128,13 @@ class TestROS1:
             # parse the test string
             ROS1.parseService(test_input)
     
+    ############ getServices tests ############
+    # a test that uses roscore fixture, then checks if the getTopics method runs without no exceptions
+    @pytest.mark.usefixtures("roscore")
+    def test_getServices(roscore):
+        ROS1.getServices()
+
+    # getTopics should raise NoROScoreError if there is no roscore process
+    def test_getServices_Exception(self):
+        with pytest.raises(NoROScoreError):
+            ROS1.getServices()
