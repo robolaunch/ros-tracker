@@ -1,17 +1,20 @@
 import sys
+import time
 from helpers import getTogetherTests, compareDictionaries
 import pytest
 import json
+from subprocess import Popen, PIPE
 
 # insert at 1, 0 is the script path (or '' in REPL)
 sys.path.insert(1, '../scripts/')
 
 from ros1_info import ROS1
-from globals import CannotParseError
+from globals import CannotParseError, NoROScoreError
 
 # this class is used to test the ROS1 class
 class TestROS1:
     
+    ############ parseTopic tests ############
     @pytest.mark.parametrize("test_input, expected", getTogetherTests("test_inputs/ROS1/parseTopic", "test_outputs/ROS1/parseTopic"))
     def test_parseTopic(self, test_input, expected):
         # parse the test string
@@ -37,3 +40,26 @@ class TestROS1:
         with pytest.raises(CannotParseError):
             # parse the test string
             ROS1.parseTopic(test_input)
+
+    ############ getTopics tests ############
+
+    # a fixture that opens "roscore" process in the shell
+    @pytest.fixture()
+    def roscore(self):
+        p = Popen(["roscore"], stdout=PIPE, stderr=PIPE)
+        time.sleep(1) # there needs to be some time before roscore opens and becomes functional
+        yield
+        p.terminate()
+
+    # a test that uses roscore fixture, then checks if the getTopics method runs without no exceptions
+    @pytest.mark.usefixtures("roscore")
+    def test_getTopics(roscore):
+        ROS1.getTopics()
+
+    # getTopics should raise NoROScoreError if there is no roscore process
+    def test_getTopics_Exception(aa):
+        print("what is aa: " + str(aa))
+        with pytest.raises(NoROScoreError):
+            ROS1.getTopics()
+
+    
