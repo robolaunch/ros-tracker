@@ -9,8 +9,12 @@ os.chdir(sys.path[0])
 def getTogetherTests(input_dir, output_dir):
     # get all the files in the input directory
     input_files = os.listdir(input_dir)
+    # sort input file names
+    input_files.sort()
     # get all the files in the output directory
     output_files = os.listdir(output_dir)
+    # sort output file names
+    output_files.sort()
     # get the number of files in the input directory
     num_input_files = len(input_files)
     # get the number of files in the output directory
