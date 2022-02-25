@@ -175,7 +175,10 @@ class ROS1:
 
     # This function gets the current ROS hostname and port
     def getHostnamePort():
-        address = os.environ.get("ROS_MASTER_URI")
+        try:
+            address = os.environ.get("ROS_MASTER_URI")
+        except:
+            raise globals.NoROScoreError
         # http://localhost:11311
         if address[:7] != "http://":
             print("ERROR! ROS_MASTER_URI is not set correctly")
