@@ -1,5 +1,5 @@
 # ROS-tracker
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/robolaunch/ros-tracker.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/robolaunch/ros-tracker/context:python)
 
 This project collects system, network and ROS statistics and information and gives all these information with a RESTful API.
 
