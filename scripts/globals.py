@@ -7,6 +7,8 @@ UPDATE_FREQUENCY = 0.1
 
 class CannotParseError(Exception):
     pass
+class NoROScoreError(Exception):
+    pass
 
 
 __ros_distro = os.environ['ROS_DISTRO']

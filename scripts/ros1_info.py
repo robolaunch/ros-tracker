@@ -65,13 +65,14 @@ class ROS1:
             subscribers_cnt += 3
 
         return {"type": type_of_topic, "publishers": publishers, "subscribers": subscribers}
+    
     # This function gets the current ros topics with the command "rostopic list"
     def getTopics():
         p = Popen(["rostopic", "list"], stdout=PIPE, stderr=PIPE)
         stdout_list, stderr_list = p.communicate()
         if p.returncode != 0:
-            return "ERROR! " + stderr_list.decode() + " with error code " + str(p.returncode)
-        
+            raise globals.NoROScoreError
+
         topic_list_splitted = stdout_list.split()
         parsed_topics = []
         i = 0
@@ -81,9 +82,8 @@ class ROS1:
             p2 = Popen(["rostopic", "info", topic_name], stdout=PIPE, stderr=PIPE)
             stdout_info, stderr_info = p2.communicate()
             if p2.returncode != 0:
-                return "ERROR! " + stderr_info.decode() + " with error code " + str(p2.returncode)
-            
-            #output[i] = ROS1.parseTopic(output2).update({"topic_name": topic_name})
+                raise globals.NoROScoreError
+
             ret = ROS1.parseTopic(stdout_info)
             ret["topic_name"] = topic_name
 
