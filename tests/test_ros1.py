@@ -91,4 +91,14 @@ class TestROS1:
             # parse the test string
             ROS1.parseNode(test_input)
 
+    ############ getNodes tests ############
+    # a test that uses roscore fixture, then checks if the getTopics method runs without no exceptions
+    @pytest.mark.usefixtures("roscore")
+    def test_getNodes(roscore):
+        ROS1.getNodes()
+
+    # getTopics should raise NoROScoreError if there is no roscore process
+    def test_getNodes_Exception(aa):
+        with pytest.raises(NoROScoreError):
+            ROS1.getNodes()
     

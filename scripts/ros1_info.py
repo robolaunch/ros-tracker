@@ -121,8 +121,8 @@ class ROS1:
         p = Popen(["rosnode", "list"], stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
         if p.returncode != 0:
-            return "ERROR! " + stderr.decode() + " with error code " + str(p.returncode)
-
+            raise globals.NoROScoreError
+            
         return ROS1.parseNode(stdout)
 
     def parseService(string):
