@@ -1,4 +1,5 @@
 # ROS-tracker
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/robolaunch/ros-tracker.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/robolaunch/ros-tracker/context:python)
 
 This project collects system, network and ROS statistics and information and gives all these information with a RESTful API.
 
@@ -32,6 +33,11 @@ X is either 1 or 2.
 ROS1 and ROS2 outputs are completely different. For now, it only gives the CLI interface outputs.
 
 For fast check, you can execute `curl http://127.0.0.1:5000/rosX/topics` and inspect the output to see if the server is running and functioning.
+
+For testing, please run
+```sh
+python3 -m pytest
+```
 
 ### To-Do
 - [ ] System Info
@@ -73,7 +79,7 @@ For fast check, you can execute `curl http://127.0.0.1:5000/rosX/topics` and ins
 
 ### Roadmap:
 
-- [ ] Tests for the currently implemented parts
+- [X] Tests for the currently implemented parts
 - [ ] ROS2 lacking parts
 - [ ] Other lacking parts
 - [ ] DDS specific network information
