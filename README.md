@@ -84,5 +84,5 @@ For fast check, you can execute `curl http://127.0.0.1:5000/rosX/topics` and ins
 ```sh
 flask
 flask-restful
-line-profiler #if you want to profile some functions
+pytest
 ```
