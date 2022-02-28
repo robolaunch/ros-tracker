@@ -91,46 +91,46 @@ def openParameterUpdateThread():
                 while True:
                     temp_topics = ROS2.getTopics()
                     globals.general_lock.acquire()
-                    topics = temp_topics
+                    globals.topics = temp_topics
                     globals.general_lock.release()
                     
                     temp_nodes = ROS2.getNodes()
                     globals.general_lock.acquire()
-                    nodes = temp_nodes
+                    globals.nodes = temp_nodes
                     globals.general_lock.release()
 
                     """
                     temp_services = ROS2.getServices()
                     globals.general_lock.acquire()
-                    services = temp_services
+                    globals.services = temp_services
                     globals.general_lock.release()
 
 
                     temp_hostname, temp_port = ROS2.getHostnamePort()
                     globals.general_lock.acquire()
-                    hostname = temp_hostname
-                    port = temp_port
+                    globals.hostname = temp_hostname
+                    globals.port = temp_port
                     globals.general_lock.release()
                     """
 
                     temp_memory_usage = get_memory_usage()
                     globals.general_lock.acquire()
-                    memory_usage = temp_memory_usage
+                    globals.memory_usage = temp_memory_usage
                     globals.general_lock.release()
 
                     temp_cpu_usage = get_total_cpu_usage()
                     globals.general_lock.acquire()
-                    cpu_usage = temp_cpu_usage
+                    globals.cpu_usage = temp_cpu_usage
                     globals.general_lock.release()
 
                     temp_network_usage = get_network_usage_dict()
                     globals.general_lock.acquire()
-                    network_usage = temp_network_usage
+                    globals.network_usage = temp_network_usage
                     globals.general_lock.release()
 
                     temp_process_list = get_process_cpu_usage()
                     globals.general_lock.acquire()
-                    process_list = temp_process_list
+                    globals.process_list = temp_process_list
                     globals.general_lock.release()
 
                     time.sleep(globals.UPDATE_FREQUENCY)
