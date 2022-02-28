@@ -15,7 +15,7 @@ from ros1_info import ROS1
 from globals import CannotParseError, NoROScoreError
 
 # this class is used to test the ROS1 class
-class TestROS1:
+class TestROS1Parsers:
     
     ############ parseTopic tests ############
     @pytest.mark.parametrize("test_input, expected", getTogetherTests("test_inputs/ROS1/parseTopic", "test_outputs/ROS1/parseTopic"))
@@ -43,55 +43,6 @@ class TestROS1:
         with pytest.raises(CannotParseError):
             # parse the test string
             ROS1.parseTopic(test_input)
-
-    ############ getTopics tests ############
-
-    def sourceROS1(self):
-        # we need to be sure that ROS1 is sourced before starting roscore
-        # the reason behind that in the computers there may be more than one ROS installation
-        # so we need to be sure that the correct one is sourced
-        # however, for that we need to find the correct ROS installation
-        # there may be more than one ROS1 installation, or only one, but melodic or noetic
-        # and if the current sourced distro is foxy, we do not know if we are using melodic or noetic
-        # for here I will assume that there is noetic installation, and for different ROS1 installations these tests will behave same, since their CLI is very similar if not the same
-        # but this is a weakness that we may need to check in the future
-        
-        # we need to source noetic environment, but with Popen we only open one command
-        # therefore we are sourcing it in the shell, take the environment variables, and change our env variables with that
-        # it is a trick that I learned from https://stackoverflow.com/a/22086176/13399661
-        source_output = check_output("source /opt/ros/noetic/setup.bash; env -0", shell=True, executable="/bin/bash")
-        os.environ.clear()
-        # if there are already other ROS environments, when we sourced this the bash will complain:
-        # "ROS_DISTRO was set to \'foxy\' before. Please make sure that the environment does not mix paths from different distributions.
-        # we need to get rid of that warning in the output
-        control_output = source_output.decode("utf-8").split("\\n")
-        if control_output[0][2:12] == "ROS_DISTRO":
-            source_output = control_output[1].encode("utf-8") # again make the source_output bytes
-        
-        for line in source_output.split(b'\x00')[:-1]:
-            print(line.decode("utf-8"))
-            var_name, var_val = line.decode("utf-8").partition("=")[::2]
-            os.environ.update(dict([(var_name, var_val)]))
-
-    # a fixture that opens "roscore" process in the shell
-    @pytest.fixture()
-    def ROS1Prepare(self):
-        self.sourceROS1()
-        p_ros = Popen(["roscore"], stdout=PIPE, stderr=PIPE)
-        time.sleep(2) # there need to be some time before roscore opens and becomes functional
-        yield
-        p_ros.terminate()
-        time.sleep(2)
-        
-    # a test that uses roscore fixture, then checks if the getTopics method runs without no exceptions
-    @pytest.mark.usefixtures("ROS1Prepare")
-    def test_getTopics(roscore):
-        ROS1.getTopics()
-
-    # getTopics should raise NoROScoreError if there is no roscore process
-    def test_getTopics_Exception(self):
-        with pytest.raises(NoROScoreError):
-            ROS1.getTopics()
 
     
     ############ parseNode tests ############
@@ -122,17 +73,6 @@ class TestROS1:
         with pytest.raises(CannotParseError):
             # parse the test string
             ROS1.parseNode(test_input)
-
-    ############ getNodes tests ############
-    # a test that uses roscore fixture, then checks if the getTopics method runs without no exceptions
-    @pytest.mark.usefixtures("ROS1Prepare")
-    def test_getNodes(roscore):
-        ROS1.getNodes()
-
-    # getTopics should raise NoROScoreError if there is no roscore process
-    def test_getNodes_Exception(self):
-        with pytest.raises(NoROScoreError):
-            ROS1.getNodes()
     
     ############ parseService tests ############
     @pytest.mark.parametrize("test_input, expected", getTogetherTests("test_inputs/ROS1/parseService", "test_outputs/ROS1/parseService"))
@@ -159,13 +99,73 @@ class TestROS1:
             # parse the test string
             ROS1.parseService(test_input)
     
-    ############ getServices tests ############
+
+# All tests here should success because the ROScore is running
+class TestROS1CLISuccess:
+
+
+    def sourceROS1(self):
+        # we need to be sure that ROS1 is sourced before starting roscore
+        # the reason behind that in the computers there may be more than one ROS installation
+        # so we need to be sure that the correct one is sourced
+        # however, for that we need to find the correct ROS installation
+        # there may be more than one ROS1 installation, or only one, but melodic or noetic
+        # and if the current sourced distro is foxy, we do not know if we are using melodic or noetic
+        # for here I will assume that there is noetic installation, and for different ROS1 installations these tests will behave same, since their CLI is very similar if not the same
+        # but this is a weakness that we may need to check in the future
+        
+        # we need to source noetic environment, but with Popen we only open one command
+        # therefore we are sourcing it in the shell, take the environment variables, and change our env variables with that
+        # it is a trick that I learned from https://stackoverflow.com/a/22086176/13399661
+        source_output = check_output("source /opt/ros/noetic/setup.bash; env -0", shell=True, executable="/bin/bash")
+        os.environ.clear()
+        # if there are already other ROS environments, when we sourced this the bash will complain:
+        # "ROS_DISTRO was set to \'foxy\' before. Please make sure that the environment does not mix paths from different distributions.
+        # we need to get rid of that warning in the output
+        control_output = source_output.decode("utf-8").split("\\n")
+        if control_output[0][2:12] == "ROS_DISTRO":
+            source_output = control_output[1].encode("utf-8") # again make the source_output bytes
+        
+        for line in source_output.split(b'\x00')[:-1]:
+            print(line.decode("utf-8"))
+            var_name, var_val = line.decode("utf-8").partition("=")[::2]
+            os.environ.update(dict([(var_name, var_val)]))
+
+    # a fixture that opens "roscore" process in the shell
+    @pytest.fixture(scope="class")
+    def ROS1Prepare(self):
+        self.sourceROS1()
+        p_ros = Popen(["roscore"], stdout=PIPE, stderr=PIPE)
+        time.sleep(1.5) # there need to be some time before roscore opens and becomes functional
+        yield
+        p_ros.terminate()
+
     # a test that uses roscore fixture, then checks if the getTopics method runs without no exceptions
     @pytest.mark.usefixtures("ROS1Prepare")
-    def test_getServices(roscore):
+    def test_ROS1_getServices(roscore):
         ROS1.getServices()
 
-    # getTopics should raise NoROScoreError if there is no roscore process
+    # a test that uses roscore fixture, then checks if the getTopics method runs without no exceptions
+    @pytest.mark.usefixtures("ROS1Prepare")
+    def test_ROS1_getNodes(roscore):
+        ROS1.getNodes()
+ 
+    # a test that uses roscore fixture, then checks if the getTopics method runs without no exceptions
+    @pytest.mark.usefixtures("ROS1Prepare")
+    def test_ROS1_getTopics(roscore):
+        ROS1.getTopics()
+
+# All tests here should give an exception because ROScore is not running in this class
+class TestROS1CLIFailure:
+
     def test_getServices_Exception(self):
         with pytest.raises(NoROScoreError):
             ROS1.getServices()
+
+    def test_getNodes_Exception(self):
+        with pytest.raises(NoROScoreError):
+            ROS1.getNodes()
+
+    def test_getTopics_Exception(self):
+        with pytest.raises(NoROScoreError):
+            ROS1.getTopics()
