@@ -1,5 +1,4 @@
 from threading import Lock
-from system_info import *
 import os
 
 ROS_VERSION = None

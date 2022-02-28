@@ -139,6 +139,7 @@ class TestROS1CLISuccess:
         time.sleep(1.5) # there need to be some time before roscore opens and becomes functional
         yield
         p_ros.terminate()
+        time.sleep(1)
 
     # a test that uses roscore fixture, then checks if the getTopics method runs without no exceptions
     @pytest.mark.usefixtures("ROS1Prepare")

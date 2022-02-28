@@ -1,6 +1,7 @@
 from subprocess import Popen, PIPE
 import os
-import line_profiler
+from globals import NoROScoreError
+
 
 # I am assuming that in one topic there will not be more than one type
 # BUT ROS2 ACTUALLY ALLOWS THIS!
@@ -9,12 +10,14 @@ import line_profiler
 class ROS2:
 
     # This function gets the current ros topics with the command "rostopic list"
-    #@profile
     def getTopics(): # lgtm [py/not-named-self]
-        p = Popen(["ros2", "topic", "list", "--include-hidden-topics"], stdout=PIPE, stderr=PIPE)
+        try:
+            p = Popen(["ros2", "topic", "list", "--include-hidden-topics"], stdout=PIPE, stderr=PIPE)
+        except:
+            raise NoROScoreError
         output, error = p.communicate()
         if p.returncode != 0:
-            return "ERROR! " + error.decode() + " with error code " + str(p.returncode)
+            raise NoROScoreError
         
         output = output.split()
         i = 0
@@ -24,7 +27,7 @@ class ROS2:
             p2 = Popen(["ros2", "topic", "info", "-v", topic_name], stdout=PIPE, stderr=PIPE)
             output2, error2 = p2.communicate()
             if p2.returncode != 0:
-                return "ERROR! " + error2.decode() + " with error code " + str(p2.returncode)
+                raise NoROScoreError
             
             output2 = output2.split()
                       
@@ -110,12 +113,15 @@ class ROS2:
         return output
 
     # This function executes "rosnode list" command and returns the output
-    #@profile
     def getNodes(): # lgtm [py/not-named-self]
-        p = Popen(["ros2", "node", "list"], stdout=PIPE, stderr=PIPE)
+        try:
+            p = Popen(["ros2", "node", "list"], stdout=PIPE, stderr=PIPE)
+        except:
+            raise NoROScoreError
         output, error = p.communicate()
         if p.returncode != 0:
-            return "ERROR! " + error.decode() + " with error code " + str(p.returncode)
+            raise NoROScoreError
+
 
         output = output.split()
         i = 0
@@ -128,7 +134,7 @@ class ROS2:
             p2.wait()
             output2, error = p2.communicate()
             if p2.returncode != 0:
-                return "ERROR! " + error.decode() + " with error code " + str(p2.returncode)
+                raise NoROScoreError
             
             output2 = output2.split()
             """
@@ -233,12 +239,14 @@ class ROS2:
         return output
 
     # This function gets the current ros services with the command "rosservice list"
-    #@profile
     def getServices(): # lgtm [py/not-named-self]
-        p = Popen(["rosservice", "list"], stdout=PIPE, stderr=PIPE)
+        try:
+            p = Popen(["ros2", "service", "list"], stdout=PIPE, stderr=PIPE)
+        except:
+            raise NoROScoreError
         output, error = p.communicate()
         if p.returncode != 0:
-            return "ERROR! " + error.decode() + " with error code " + str(p.returncode)
+            raise NoROScoreError
 
         output = output.split()
         i = 0
@@ -248,7 +256,7 @@ class ROS2:
             p2 = Popen(["rosservice", "info", service_name], stdout=PIPE, stderr=PIPE)
             output2, error2 = p2.communicate()
             if p2.returncode != 0:
-                return "ERROR! " + error2.decode() + " with error code " + str(p2.returncode)
+                raise NoROScoreError
             
             output2 = output2.split()
 
@@ -270,7 +278,6 @@ class ROS2:
         return output
 
     # This function gets the current ROS hostname and port
-    #@profile
     def getHostnamePort(): # lgtm [py/not-named-self]
         address = os.environ.get("ROS_MASTER_URI")
         # http://localhost:11311
