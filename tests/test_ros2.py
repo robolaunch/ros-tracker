@@ -21,9 +21,18 @@ class TestROS2Parsers:
     @pytest.mark.parametrize("test_input, expected", getTogetherTests("test_inputs/ROS2/parseTopic", "test_outputs/ROS2/parseTopic"))
     def test_parseTopic(self, test_input, expected):
         # parse the test string
-        parsed_topics = ROS2.parseTopics(test_input)
+        parsed_topics = ROS2.parseTopic(test_input)
         # compare the parsed topics with the expected result
         assert parsed_topics == json.loads(expected)
+
+    @pytest.mark.parametrize("test_input, expected", [["", ""]])
+    def test_parseTopic_EmptyString(self, test_input, expected):
+        with pytest.raises(CannotParseError):
+            # parse the test string
+            ROS2.parseTopic(test_input)
+
+    #TODO add more tests for parseTopic
+    
 # All tests here should give an exception because ROScore is not running in this class
 class TestROS2CLIFailure:
 
