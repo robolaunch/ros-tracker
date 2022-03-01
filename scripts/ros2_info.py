@@ -11,7 +11,6 @@ import traceback
 class ROS2:
 
     def parseTopics(string):
-        traceback.print_stack()
         topic_splitted = string.split()
                       
         # for now
@@ -61,19 +60,17 @@ class ROS2:
 
         type_of_topic = topic_splitted[1].decode("utf-8")
         publisher_count = topic_splitted[4].decode("utf-8")
-        subscriber_count = None
+        subscriber_count = 0
 
         node_start_index = 5
         is_in_publishers = True
         publisher_nodes = []
         subscriber_nodes = []
         while node_start_index+31 < len(topic_splitted):
-            print("parsing!")
-            print(topic_splitted[node_start_index])
             if topic_splitted[node_start_index] == b'Subscription':
                 is_in_publishers = False
+                subscriber_count = topic_splitted[node_start_index+2].decode("utf-8")
                 node_start_index += 3
-                print("came to subs")
             node_name = topic_splitted[node_start_index+2].decode("utf-8")
             node_namespace = topic_splitted[node_start_index+5].decode("utf-8")
             topic_type = topic_splitted[node_start_index+8].decode("utf-8") # this is probably duplicat
@@ -90,12 +87,10 @@ class ROS2:
             if is_in_publishers:
                 publisher_nodes.append({"node_name": node_name, "node_namespace": node_namespace, "topic_type": topic_type, "endpoint_type": endpoint_type, "gid": gid, "reliability": reliability, "durability": durability, "lifespan": lifespan, "deadline": deadline, "liveliness": liveliness, "lease_duration": lease_duration})
             else:
-                print("subscriber append")
                 subscriber_nodes.append({"node_name": node_name, "node_namespace": node_namespace, "topic_type": topic_type, "endpoint_type": endpoint_type, "gid": gid, "reliability": reliability, "durability": durability, "lifespan": lifespan, "deadline": deadline, "liveliness": liveliness, "lease_duration": lease_duration})
             node_start_index += 33
         # I will write subscribers later TODO
 
-        print("returning", {"type_of_topic": type_of_topic, "publisher_count": publisher_count, "publisher_nodes": publisher_nodes, "subscriber_count": subscriber_count, "subscriber_nodes": subscriber_nodes})
         return {"type_of_topic": type_of_topic, "publisher_count": publisher_count, "publisher_nodes": publisher_nodes, "subscriber_count": subscriber_count, "subscriber_nodes": subscriber_nodes}
 
     # This function gets the current ros topics with the command "rostopic list"
