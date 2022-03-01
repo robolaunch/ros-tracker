@@ -1,6 +1,7 @@
 from subprocess import Popen, PIPE
 import os
 from globals import NoROScoreError
+import traceback
 
 
 # I am assuming that in one topic there will not be more than one type
@@ -8,6 +9,94 @@ from globals import NoROScoreError
 
 # This class is just to wrap ROS1 functions into one structure
 class ROS2:
+
+    def parseTopics(string):
+        traceback.print_stack()
+        topic_splitted = string.split()
+                      
+        # for now
+        """
+        out 0: Type:
+        out 1: rcl_interfaces/msg/ParameterEvent
+        out 2: Publisher
+        out 3: count:
+        out 4: 1
+        out 5: Node
+        out 6: name:
+        out 7: _ros2cli_daemon_0
+        out 8: Node
+        out 9: namespace:
+        out 10: /
+        out 11: Topic
+        out 12: type:
+        out 13: rcl_interfaces/msg/ParameterEvent
+        out 14: Endpoint
+        out 15: type:
+        out 16: PUBLISHER
+        out 17: GID:
+        out 18: 01.0f.f4.a0.9e.41.00.00.01.00.00.00.00.00.04.03.00.00.00.00.00.00.00.00
+        out 19: QoS
+        out 20: profile:
+        out 21: Reliability:
+        out 22: RMW_QOS_POLICY_RELIABILITY_RELIABLE
+        out 23: Durability:
+        out 24: RMW_QOS_POLICY_DURABILITY_VOLATILE
+        out 25: Lifespan:
+        out 26: 2147483651294967295
+        out 27: nanoseconds
+        out 28: Deadline:
+        out 29: 2147483651294967295
+        out 30: nanoseconds
+        out 31: Liveliness:
+        out 32: RMW_QOS_POLICY_LIVELINESS_AUTOMATIC
+        out 33: Liveliness
+        out 34: lease
+        out 35: duration:
+        out 36: 2147483651294967295
+        out 37: nanoseconds
+        out 38: Subscription
+        out 39: count:
+        out 40: 0
+        """
+
+        type_of_topic = topic_splitted[1].decode("utf-8")
+        publisher_count = topic_splitted[4].decode("utf-8")
+        subscriber_count = None
+
+        node_start_index = 5
+        is_in_publishers = True
+        publisher_nodes = []
+        subscriber_nodes = []
+        while node_start_index+31 < len(topic_splitted):
+            print("parsing!")
+            print(topic_splitted[node_start_index])
+            if topic_splitted[node_start_index] == b'Subscription':
+                is_in_publishers = False
+                node_start_index += 3
+                print("came to subs")
+            node_name = topic_splitted[node_start_index+2].decode("utf-8")
+            node_namespace = topic_splitted[node_start_index+5].decode("utf-8")
+            topic_type = topic_splitted[node_start_index+8].decode("utf-8") # this is probably duplicat
+            endpoint_type = topic_splitted[node_start_index+11].decode("utf-8") # this is probably unimportant
+            gid = topic_splitted[node_start_index+13].decode("utf-8")
+            # qos profile
+            reliability = topic_splitted[node_start_index+17].decode("utf-8")
+            durability = topic_splitted[node_start_index+19].decode("utf-8")
+            lifespan = topic_splitted[node_start_index+21].decode("utf-8") # I suppose this things unit will always be in nanoseconds
+            deadline = topic_splitted[node_start_index+24].decode("utf-8")
+            liveliness = topic_splitted[node_start_index+27].decode("utf-8")
+            lease_duration = topic_splitted[node_start_index+31].decode("utf-8")
+            
+            if is_in_publishers:
+                publisher_nodes.append({"node_name": node_name, "node_namespace": node_namespace, "topic_type": topic_type, "endpoint_type": endpoint_type, "gid": gid, "reliability": reliability, "durability": durability, "lifespan": lifespan, "deadline": deadline, "liveliness": liveliness, "lease_duration": lease_duration})
+            else:
+                print("subscriber append")
+                subscriber_nodes.append({"node_name": node_name, "node_namespace": node_namespace, "topic_type": topic_type, "endpoint_type": endpoint_type, "gid": gid, "reliability": reliability, "durability": durability, "lifespan": lifespan, "deadline": deadline, "liveliness": liveliness, "lease_duration": lease_duration})
+            node_start_index += 33
+        # I will write subscribers later TODO
+
+        print("returning", {"type_of_topic": type_of_topic, "publisher_count": publisher_count, "publisher_nodes": publisher_nodes, "subscriber_count": subscriber_count, "subscriber_nodes": subscriber_nodes})
+        return {"type_of_topic": type_of_topic, "publisher_count": publisher_count, "publisher_nodes": publisher_nodes, "subscriber_count": subscriber_count, "subscriber_nodes": subscriber_nodes}
 
     # This function gets the current ros topics with the command "rostopic list"
     def getTopics(): # lgtm [py/not-named-self]
@@ -20,97 +109,20 @@ class ROS2:
             raise NoROScoreError
         
         output = output.split()
-        i = 0
-        while i < len(output):
-            topic_name = output[i].decode("utf-8")
+        return_list = []
+        for out in output:
+            topic_name = out.decode("utf-8")
 
             p2 = Popen(["ros2", "topic", "info", "-v", topic_name], stdout=PIPE, stderr=PIPE)
             output2, error2 = p2.communicate()
             if p2.returncode != 0:
                 raise NoROScoreError
+
+            topic_info = ROS2.parseTopics(output2)
+            topic_info["topic_name"] = topic_name
+            return_list.append(topic_info)
             
-            output2 = output2.split()
-                      
-            # for now
-            """
-            out 0: Type:
-            out 1: rcl_interfaces/msg/ParameterEvent
-            out 2: Publisher
-            out 3: count:
-            out 4: 1
-            out 5: Node
-            out 6: name:
-            out 7: _ros2cli_daemon_0
-            out 8: Node
-            out 9: namespace:
-            out 10: /
-            out 11: Topic
-            out 12: type:
-            out 13: rcl_interfaces/msg/ParameterEvent
-            out 14: Endpoint
-            out 15: type:
-            out 16: PUBLISHER
-            out 17: GID:
-            out 18: 01.0f.f4.a0.9e.41.00.00.01.00.00.00.00.00.04.03.00.00.00.00.00.00.00.00
-            out 19: QoS
-            out 20: profile:
-            out 21: Reliability:
-            out 22: RMW_QOS_POLICY_RELIABILITY_RELIABLE
-            out 23: Durability:
-            out 24: RMW_QOS_POLICY_DURABILITY_VOLATILE
-            out 25: Lifespan:
-            out 26: 2147483651294967295
-            out 27: nanoseconds
-            out 28: Deadline:
-            out 29: 2147483651294967295
-            out 30: nanoseconds
-            out 31: Liveliness:
-            out 32: RMW_QOS_POLICY_LIVELINESS_AUTOMATIC
-            out 33: Liveliness
-            out 34: lease
-            out 35: duration:
-            out 36: 2147483651294967295
-            out 37: nanoseconds
-            out 38: Subscription
-            out 39: count:
-            out 40: 0
-            """
-
-            type_of_topic = output2[1].decode("utf-8")
-            publisher_count = output2[4].decode("utf-8")
-
-            node_start_index = 5
-            publisher_nodes = []
-            while True:
-                node_name = output2[node_start_index+2].decode("utf-8")
-                node_namespace = output2[node_start_index+5].decode("utf-8")
-                topic_type = output2[node_start_index+8].decode("utf-8") # this is probably duplicat
-                endpoint_type = output2[node_start_index+11].decode("utf-8") # this is probably unimportant
-                gid = output2[node_start_index+13].decode("utf-8")
-                # qos profile
-                reliability = output2[node_start_index+17].decode("utf-8")
-                durability = output2[node_start_index+19].decode("utf-8")
-                lifespan = output2[node_start_index+21].decode("utf-8") # I suppose this things unit will always be in nanoseconds
-                deadline = output2[node_start_index+24].decode("utf-8")
-                liveliness = output2[node_start_index+27].decode("utf-8")
-                lease_duration = output2[node_start_index+31].decode("utf-8")
-                
-                publisher_nodes.append({"node_name": node_name, "node_namespace": node_namespace, "topic_type": topic_type, "endpoint_type": endpoint_type, "gid": gid, "reliability": reliability, "durability": durability, "lifespan": lifespan, "deadline": deadline, "liveliness": liveliness, "lease_duration": lease_duration})
-
-                node_start_index += 33
-                if output2[node_start_index].decode("utf-8") != "Node":
-                    break
-
-            # I will write subscribers later
-            
-
-
-
-            output[i] = {"topic_name": topic_name, "type_of_topic": type_of_topic, "publisher_count": publisher_count, "publisher_nodes": publisher_nodes}
-
-            #output[i] = {"name": topic_name, "type": type_of_topic, "publishers": publishers, "subscribers": subscribers}
-            i += 1
-        return output
+        return return_list
 
     # This function executes "rosnode list" command and returns the output
     def getNodes(): # lgtm [py/not-named-self]
