@@ -56,7 +56,7 @@ python3 -m pytest
 - - [X] Publisher nodes along with all QoS information that `ros2 topic info -v` gives(this part needs a check and feedback from network people)
 - - [X] Subscriber count
 - - [X] Subscriber nodes along with QoS information
-- [ ] ROS2 Services
+- [X] ROS2 Services
 - [ ] ROS2 Nodes
 - [ ] ROS2 Actions
 - [ ] ROS2 Network
@@ -81,6 +81,7 @@ python3 -m pytest
 
 - [X] Tests for the currently implemented parts
 - [ ] ROS2 lacking parts
+- [ ] Storing custom topics with rosbag
 - [ ] Other lacking parts
 - [ ] DDS specific network information
 
