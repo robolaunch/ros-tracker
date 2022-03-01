@@ -22,7 +22,6 @@ class TestROS1Parsers:
     def test_parseTopic(self, test_input, expected):
         # parse the test string
         parsed_topics = ROS1.parseTopic(test_input)
-        print("parseTopic: " + str(parsed_topics))
         # compare the parsed topics with the expected result
         assert parsed_topics == json.loads(expected)
 
@@ -50,10 +49,6 @@ class TestROS1Parsers:
     def test_parseNode(self, test_input, expected):
         # parse the test string
         parsed_nodes = ROS1.parseNode(test_input)
-        print("parsed_nodes: ")
-        print(parsed_nodes)
-        print("expected is: ")
-        print(expected)
         # compare the parsed nodes with the expected result
         assert parsed_nodes == json.loads(expected)
     
@@ -79,8 +74,6 @@ class TestROS1Parsers:
     def test_parseService(self, test_input, expected):
         # parse the test string
         parsed_services = ROS1.parseService(test_input)
-        print("parsed_services: ")
-        print(parsed_services)
         # compare the parsed services with the expected result
         assert parsed_services == json.loads(expected)
 
@@ -127,7 +120,6 @@ class TestROS1CLISuccess:
             source_output = control_output[1].encode("utf-8") # again make the source_output bytes
         
         for line in source_output.split(b'\x00')[:-1]:
-            print(line.decode("utf-8"))
             var_name, var_val = line.decode("utf-8").partition("=")[::2]
             os.environ.update(dict([(var_name, var_val)]))
 
