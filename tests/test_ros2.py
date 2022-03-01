@@ -14,6 +14,16 @@ sys.path.insert(1, '../scripts/')
 from ros2_info import ROS2
 from globals import CannotParseError, NoROScoreError
 
+
+class TestROS2Parsers:
+
+    ############ parseTopic tests ############
+    @pytest.mark.parametrize("test_input, expected", getTogetherTests("test_inputs/ROS2/parseTopic", "test_outputs/ROS2/parseTopic"))
+    def test_parseTopic(self, test_input, expected):
+        # parse the test string
+        parsed_topics = ROS2.parseTopics(test_input)
+        # compare the parsed topics with the expected result
+        assert parsed_topics == json.loads(expected)
 # All tests here should give an exception because ROScore is not running in this class
 class TestROS2CLIFailure:
 
