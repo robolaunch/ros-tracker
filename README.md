@@ -81,6 +81,7 @@ python3 -m pytest
 
 - [X] Tests for the currently implemented parts
 - [ ] ROS2 lacking parts
+- [ ] Storing custom topics with rosbag
 - [ ] Other lacking parts
 - [ ] DDS specific network information
 
