@@ -7,8 +7,7 @@ import globals
 from threading import Thread
 import time
 from std_msgs.msg import String
-import traceback
-import os
+
 # start a Flask web server
 app = Flask(__name__)
 api = Api(app)
@@ -26,13 +25,13 @@ class ROS2ServiceThread():
             globals.nodes = temp_nodes
             globals.general_lock.release()
 
-            """
+            
             temp_services = ROS2.getServices()
             globals.general_lock.acquire()
             globals.services = temp_services
             globals.general_lock.release()
 
-
+            """
             temp_hostname, temp_port = ROS2.getHostnamePort()
             globals.general_lock.acquire()
             globals.hostname = temp_hostname
@@ -133,9 +132,9 @@ class ROS1ServiceThread():
 def openParameterUpdateThread():
     if globals.ROS_VERSION == 1:
         __thread = Thread(target = ROS1ServiceThread.loop)
-        __thread2 = Thread(target = ROS1ServiceThread.rosNode)
+        #__thread2 = Thread(target = ROS1ServiceThread.rosNode)
         __thread.start()
-        __thread2.start()
+        #__thread2.start()
 
     else:
         __thread = Thread(target = ROS2ServiceThread.loop)

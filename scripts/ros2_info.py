@@ -1,6 +1,6 @@
 from subprocess import Popen, PIPE
 import os
-from globals import NoROScoreError
+from globals import NoROScoreError, CannotParseError
 import traceback
 
 
@@ -10,9 +10,11 @@ import traceback
 # This class is just to wrap ROS1 functions into one structure
 class ROS2:
 
-    def parseTopics(string):
+    def parseTopic(string):
         topic_splitted = string.split()
-                      
+        if len(topic_splitted) < 4:
+            raise CannotParseError
+        
         # for now
         """
         out 0: Type:
@@ -113,7 +115,7 @@ class ROS2:
             if p2.returncode != 0:
                 raise NoROScoreError
 
-            topic_info = ROS2.parseTopics(output2)
+            topic_info = ROS2.parseTopic(output2)
             topic_info["topic_name"] = topic_name
             return_list.append(topic_info)
             
@@ -245,10 +247,12 @@ class ROS2:
             i += 1
         return output
 
+    # There is way less information in this than I imagined
+    # It may be checked again.
     # This function gets the current ros services with the command "rosservice list"
     def getServices(): # lgtm [py/not-named-self]
         try:
-            p = Popen(["ros2", "service", "list"], stdout=PIPE, stderr=PIPE)
+            p = Popen(["ros2", "service","--include-hidden-services" , "list", "-t"], stdout=PIPE, stderr=PIPE)
         except:
             raise NoROScoreError
         output, error = p.communicate()
@@ -256,33 +260,14 @@ class ROS2:
             raise NoROScoreError
 
         output = output.split()
+        return_list = []
         i = 0
         while i < len(output):
             service_name = output[i].decode("utf-8")
-
-            p2 = Popen(["rosservice", "info", service_name], stdout=PIPE, stderr=PIPE)
-            output2, error2 = p2.communicate()
-            if p2.returncode != 0:
-                raise NoROScoreError
-            
-            output2 = output2.split()
-
-            # for now
-            # 0 is "Node:"
-            # 1 is the node name
-            # 2 is "URI"
-            # 3 is the URI
-            # 4 is "Type:"
-            # 5 is the type
-            # 6 is "Args:" ###### Will not used
-
-            node_name = output2[1].decode("utf-8")
-            uri = output2[3].decode("utf-8")
-            type_of_service = output2[5].decode("utf-8")
-            
-            output[i] = {"service_name": service_name, "node_name": node_name, "uri": uri, "type": type_of_service}
-            i += 1
-        return output
+            service_type = output[i+1].decode("utf-8")
+            return_list.append({"service_name": service_name, "service_type": service_type})
+            i += 2
+        return return_list
 
     # This function gets the current ROS hostname and port
     def getHostnamePort(): # lgtm [py/not-named-self]
