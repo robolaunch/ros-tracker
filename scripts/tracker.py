@@ -8,134 +8,145 @@ from threading import Thread
 import time
 from std_msgs.msg import String
 
+class ROS2ServiceThread():
+    def loop():
+        while True:
+            temp_topics = ROS2.getTopics()
+            globals.general_lock.acquire()
+            globals.topics = temp_topics
+            globals.general_lock.release()
+            
+            temp_nodes = ROS2.getNodes()
+            globals.general_lock.acquire()
+            globals.nodes = temp_nodes
+            globals.general_lock.release()
+
+            """
+            temp_services = ROS2.getServices()
+            globals.general_lock.acquire()
+            globals.services = temp_services
+            globals.general_lock.release()
+
+
+            temp_hostname, temp_port = ROS2.getHostnamePort()
+            globals.general_lock.acquire()
+            globals.hostname = temp_hostname
+            globals.port = temp_port
+            globals.general_lock.release()
+            """
+
+            temp_memory_usage = get_memory_usage()
+            globals.general_lock.acquire()
+            globals.memory_usage = temp_memory_usage
+            globals.general_lock.release()
+
+            temp_cpu_usage = get_total_cpu_usage()
+            globals.general_lock.acquire()
+            globals.cpu_usage = temp_cpu_usage
+            globals.general_lock.release()
+
+            temp_network_usage = get_network_usage_dict()
+            globals.general_lock.acquire()
+            globals.network_usage = temp_network_usage
+            globals.general_lock.release()
+
+            temp_process_list = get_process_cpu_usage()
+            globals.general_lock.acquire()
+            globals.process_list = temp_process_list
+            globals.general_lock.release()
+
+            time.sleep(globals.UPDATE_FREQUENCY)
+
+class ROS1ServiceThread():
+    def loop():
+        while True:
+            temp_topics = ROS1.getTopics()
+            globals.general_lock.acquire()
+            globals.topics = temp_topics
+            globals.general_lock.release()
+
+            temp_services = ROS1.getServices()
+            globals.general_lock.acquire()
+            globals.services = temp_services
+            globals.general_lock.release()
+
+            temp_nodes = ROS1.getNodes()
+            globals.general_lock.acquire()
+            globals.nodes = temp_nodes
+            globals.general_lock.release()
+
+            temp_hostname, temp_port = ROS1.getHostnamePort()
+            globals.general_lock.acquire()
+            globals.hostname = temp_hostname
+            globals.port = temp_port
+            globals.general_lock.release()
+
+            temp_memory_usage = get_memory_usage()
+            globals.general_lock.acquire()
+            globals.memory_usage = temp_memory_usage
+            globals.general_lock.release()
+
+            temp_cpu_usage = get_total_cpu_usage()
+            globals.general_lock.acquire()
+            globals.cpu_usage = temp_cpu_usage
+            globals.general_lock.release()
+
+            temp_network_usage = get_network_usage_dict()
+            globals.general_lock.acquire()
+            globals.network_usage = temp_network_usage
+            globals.general_lock.release()
+
+            temp_process_list = get_process_cpu_usage()
+            globals.general_lock.acquire()
+            globals.process_list = temp_process_list
+            globals.general_lock.release()
+
+            time.sleep(globals.UPDATE_FREQUENCY)
+
+    def rosNode():
+        import rospy
+        rospy.init_node('KAE_Metrics', anonymous=True)
+        pub = rospy.Publisher('/statistics', String, queue_size=10)
+        # rate according to the update frequency
+        rate = rospy.Rate(globals.UPDATE_FREQUENCY)
+        i = 0
+        while not rospy.is_shutdown():
+            i += 1
+            #print("Publishing to topic /statistics")
+            globals.general_lock.acquire()
+            all_str = str({'topics': globals.topics, 'services': globals.services, 'nodes': globals.nodes, 'hostname': globals.hostname, 'port': globals.port, 'memory_usage': globals.memory_usage, 'cpu_usage': globals.cpu_usage, 'network_usage': globals.network_usage, 'process_list': globals.process_list})
+            globals.general_lock.release()
+
+            #print("published")
+            pub.publish(all_str)
+
+            #print("sleeping")
+            #rospy.sleep(globals.UPDATE_FREQUENCY)
+            rate.sleep()
+            #print("slept" + str(i))
+            
 def openParameterUpdateThread():
     if globals.ROS_VERSION == 1:
-        import rospy
-        class ServiceThread():
-            def loop():
-                while True:
-                    temp_topics = ROS1.getTopics()
-                    globals.general_lock.acquire()
-                    globals.topics = temp_topics
-                    globals.general_lock.release()
-
-                    temp_services = ROS1.getServices()
-                    globals.general_lock.acquire()
-                    globals.services = temp_services
-                    globals.general_lock.release()
-
-                    temp_nodes = ROS1.getNodes()
-                    globals.general_lock.acquire()
-                    globals.nodes = temp_nodes
-                    globals.general_lock.release()
-
-                    temp_hostname, temp_port = ROS1.getHostnamePort()
-                    globals.general_lock.acquire()
-                    globals.hostname = temp_hostname
-                    globals.port = temp_port
-                    globals.general_lock.release()
-
-                    temp_memory_usage = get_memory_usage()
-                    globals.general_lock.acquire()
-                    globals.memory_usage = temp_memory_usage
-                    globals.general_lock.release()
-
-                    temp_cpu_usage = get_total_cpu_usage()
-                    globals.general_lock.acquire()
-                    globals.cpu_usage = temp_cpu_usage
-                    globals.general_lock.release()
-
-                    temp_network_usage = get_network_usage_dict()
-                    globals.general_lock.acquire()
-                    globals.network_usage = temp_network_usage
-                    globals.general_lock.release()
-
-                    temp_process_list = get_process_cpu_usage()
-                    globals.general_lock.acquire()
-                    globals.process_list = temp_process_list
-                    globals.general_lock.release()
-
-                    time.sleep(globals.UPDATE_FREQUENCY)
-
-            def rosNode():
-                
-                pub = rospy.Publisher('/statistics', String, queue_size=10)
-                # rate according to the update frequency
-                rate = rospy.Rate(globals.UPDATE_FREQUENCY)
-                i = 0
-                while not rospy.is_shutdown():
-                    i += 1
-                    #print("Publishing to topic /statistics")
-                    globals.general_lock.acquire()
-                    all_str = str({'topics': globals.topics, 'services': globals.services, 'nodes': globals.nodes, 'hostname': globals.hostname, 'port': globals.port, 'memory_usage': globals.memory_usage, 'cpu_usage': globals.cpu_usage, 'network_usage': globals.network_usage, 'process_list': globals.process_list})
-                    globals.general_lock.release()
-
-                    #print("published")
-                    pub.publish(all_str)
-
-                    #print("sleeping")
-                    #rospy.sleep(globals.UPDATE_FREQUENCY)
-                    rate.sleep()
-                    #print("slept" + str(i))
-
-        rospy.init_node('KAE_Metrics', anonymous=True)
-        __thread = Thread(target = ServiceThread.loop)
-        __thread2 = Thread(target = ServiceThread.rosNode)
+        __thread = Thread(target = ROS1ServiceThread.loop)
+        __thread2 = Thread(target = ROS1ServiceThread.rosNode)
         __thread.start()
         __thread2.start()
 
     else:
-        class ServiceThread():
-            def loop():
-                global topics, services, nodes, hostname, port, memory_usage, cpu_usage, network_usage, process_list
-                while True:
-                    temp_topics = ROS2.getTopics()
-                    globals.general_lock.acquire()
-                    globals.topics = temp_topics
-                    globals.general_lock.release()
-                    
-                    temp_nodes = ROS2.getNodes()
-                    globals.general_lock.acquire()
-                    globals.nodes = temp_nodes
-                    globals.general_lock.release()
+        print("------------------------------------------------------")
+        print("opened service thread loop")
+        print("opened service thread loop")
+        print("opened service thread loop")
+        print("opened service thread loop")
+        print("opened service thread loop")
+        print("opened service thread loop")
+        print("opened service thread loop")
+        print("opened service thread loop")
+        print("opened service thread loop")
+        print("opened service thread loop")
+        print("------------------------------------------------------")
 
-                    """
-                    temp_services = ROS2.getServices()
-                    globals.general_lock.acquire()
-                    globals.services = temp_services
-                    globals.general_lock.release()
-
-
-                    temp_hostname, temp_port = ROS2.getHostnamePort()
-                    globals.general_lock.acquire()
-                    globals.hostname = temp_hostname
-                    globals.port = temp_port
-                    globals.general_lock.release()
-                    """
-
-                    temp_memory_usage = get_memory_usage()
-                    globals.general_lock.acquire()
-                    globals.memory_usage = temp_memory_usage
-                    globals.general_lock.release()
-
-                    temp_cpu_usage = get_total_cpu_usage()
-                    globals.general_lock.acquire()
-                    globals.cpu_usage = temp_cpu_usage
-                    globals.general_lock.release()
-
-                    temp_network_usage = get_network_usage_dict()
-                    globals.general_lock.acquire()
-                    globals.network_usage = temp_network_usage
-                    globals.general_lock.release()
-
-                    temp_process_list = get_process_cpu_usage()
-                    globals.general_lock.acquire()
-                    globals.process_list = temp_process_list
-                    globals.general_lock.release()
-
-                    time.sleep(globals.UPDATE_FREQUENCY)
-
-        __thread = Thread(target = ServiceThread.loop)
+        __thread = Thread(target = ROS2ServiceThread.loop)
         __thread.start()
 
 def open_restful_server():
@@ -221,7 +232,7 @@ def open_restful_server():
         api.add_resource(ROS2NetworkInfo, '/ros2/network')
 
 
-    app.run()
+    app.run(debug=False)
 
 if __name__ == "__main__":
     openParameterUpdateThread()
