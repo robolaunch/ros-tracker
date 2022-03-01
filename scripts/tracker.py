@@ -15,21 +15,28 @@ api = Api(app)
 class ROS2ServiceThread():
     def loop():
         while True:
+            current_time = time.time()
             temp_topics = ROS2.getTopics()
             globals.general_lock.acquire()
             globals.topics = temp_topics
             globals.general_lock.release()
+            print("ROS2 topics update time: " + str(time.time() - current_time))
+            current_time = time.time()
             
             temp_nodes = ROS2.getNodes()
             globals.general_lock.acquire()
             globals.nodes = temp_nodes
             globals.general_lock.release()
+            print("ROS2 nodes update time: " + str(time.time() - current_time))
+            current_time = time.time()
 
-            
             temp_services = ROS2.getServices()
             globals.general_lock.acquire()
             globals.services = temp_services
             globals.general_lock.release()
+            print("ROS2 services update time: " + str(time.time() - current_time))
+            current_time = time.time()
+
 
             """
             temp_hostname, temp_port = ROS2.getHostnamePort()
@@ -43,67 +50,94 @@ class ROS2ServiceThread():
             globals.general_lock.acquire()
             globals.memory_usage = temp_memory_usage
             globals.general_lock.release()
+            print("ROS2 memory usage update time: " + str(time.time() - current_time))
+            current_time = time.time()
 
             temp_cpu_usage = get_total_cpu_usage()
             globals.general_lock.acquire()
             globals.cpu_usage = temp_cpu_usage
             globals.general_lock.release()
+            print("ROS2 cpu usage update time: " + str(time.time() - current_time))
 
             temp_network_usage = get_network_usage_dict()
             globals.general_lock.acquire()
             globals.network_usage = temp_network_usage
             globals.general_lock.release()
+            print("ROS2 network usage update time: " + str(time.time() - current_time))
+            current_time = time.time()
 
+            """
             temp_process_list = get_process_cpu_usage()
             globals.general_lock.acquire()
             globals.process_list = temp_process_list
             globals.general_lock.release()
+            print("ROS2 process list update time: " + str(time.time() - current_time))
+            current_time = time.time()
+            """
 
+            print("-------------------------------------------------------")
             time.sleep(globals.UPDATE_FREQUENCY)
 
 class ROS1ServiceThread():
     def loop():
         while True:
+            current_time = time.time()
             temp_topics = ROS1.getTopics()
             globals.general_lock.acquire()
             globals.topics = temp_topics
             globals.general_lock.release()
+            print("ROS1 topics update time: " + str(time.time() - current_time))
+            current_time = time.time()
 
             temp_services = ROS1.getServices()
             globals.general_lock.acquire()
             globals.services = temp_services
             globals.general_lock.release()
+            print("ROS1 services update time: " + str(time.time() - current_time))
+            current_time = time.time()
 
             temp_nodes = ROS1.getNodes()
             globals.general_lock.acquire()
             globals.nodes = temp_nodes
             globals.general_lock.release()
+            print("ROS1 nodes update time: " + str(time.time() - current_time))
+            current_time = time.time()
 
             temp_hostname, temp_port = ROS1.getHostnamePort()
             globals.general_lock.acquire()
             globals.hostname = temp_hostname
             globals.port = temp_port
             globals.general_lock.release()
+            print("ROS1 hostname and port update time: " + str(time.time() - current_time))
+            current_time = time.time()
 
             temp_memory_usage = get_memory_usage()
             globals.general_lock.acquire()
             globals.memory_usage = temp_memory_usage
             globals.general_lock.release()
+            print("ROS1 memory usage update time: " + str(time.time() - current_time))
+            current_time = time.time()
 
             temp_cpu_usage = get_total_cpu_usage()
             globals.general_lock.acquire()
             globals.cpu_usage = temp_cpu_usage
             globals.general_lock.release()
+            print("ROS1 cpu usage update time: " + str(time.time() - current_time))
+            current_time = time.time()
 
             temp_network_usage = get_network_usage_dict()
             globals.general_lock.acquire()
             globals.network_usage = temp_network_usage
             globals.general_lock.release()
+            print("ROS1 network usage update time: " + str(time.time() - current_time))
+            current_time = time.time()
 
             temp_process_list = get_process_cpu_usage()
             globals.general_lock.acquire()
             globals.process_list = temp_process_list
             globals.general_lock.release()
+            print("ROS1 process list update time: " + str(time.time() - current_time))
+            current_time = time.time()
 
             time.sleep(globals.UPDATE_FREQUENCY)
 
