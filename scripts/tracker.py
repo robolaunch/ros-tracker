@@ -7,6 +7,11 @@ import globals
 from threading import Thread
 import time
 from std_msgs.msg import String
+import traceback
+import os
+# start a Flask web server
+app = Flask(__name__)
+api = Api(app)
 
 class ROS2ServiceThread():
     def loop():
@@ -133,88 +138,77 @@ def openParameterUpdateThread():
         __thread2.start()
 
     else:
-        print("------------------------------------------------------")
-        print("opened service thread loop")
-        print("opened service thread loop")
-        print("opened service thread loop")
-        print("opened service thread loop")
-        print("opened service thread loop")
-        print("opened service thread loop")
-        print("opened service thread loop")
-        print("opened service thread loop")
-        print("opened service thread loop")
-        print("opened service thread loop")
-        print("------------------------------------------------------")
-
         __thread = Thread(target = ROS2ServiceThread.loop)
         __thread.start()
 
-def open_restful_server():
-    # start a Flask web server
-    app = Flask(__name__)
-    api = Api(app)
 
-    class SystemInfo(Resource):
-        def get(self):
-            globals.general_lock.acquire()
-            output = {"memory_usage": globals.memory_usage, "cpu_usage": globals.cpu_usage, "network_usage": globals.network_usage}
-            globals.general_lock.release()
-            return jsonify(output)
-    class Processes(Resource):
-        def get(self):
-            globals.general_lock.acquire()
-            output = {"process_list": globals.process_list}
-            globals.general_lock.release()
-            return jsonify(output)
-    class ROS1Topic(Resource):
-        def get(self):
-            globals.general_lock.acquire()
-            output = {"topics": globals.topics}
-            globals.general_lock.release()
-            return jsonify(output)
-    class ROS1Service(Resource):
-        def get(self):
-            globals.general_lock.acquire()
-            output = {"services": globals.services}
-            globals.general_lock.release()
-            return jsonify(output)
-    class ROS1Nodes(Resource):
-        def get(self):
-            globals.general_lock.acquire()
-            output = {"nodes": globals.nodes}
-            globals.general_lock.release()
-            return jsonify(output)
-    class ROS1NetworkInfo(Resource):
-        def get(self):
-            globals.general_lock.acquire()
-            output = {"hostname": globals.hostname, "port": globals.port}
-            globals.general_lock.release()
-            return jsonify(output)
 
-    class ROS2Topic(Resource):
-        def get(self):
-            globals.general_lock.acquire()
-            output = {"topics": globals.topics}
-            globals.general_lock.release()
-            return jsonify(output)
-    class ROS2Service(Resource):
-        def get(self):
-            globals.general_lock.acquire()
-            output = {"services": globals.services}
-            globals.general_lock.release()
-            return jsonify(output)
-    class ROS2Nodes(Resource):
-        def get(self):
-            globals.general_lock.acquire()
-            output = {"nodes": globals.nodes}
-            globals.general_lock.release()
-            return jsonify(output)
-    class ROS2NetworkInfo(Resource):
-        def get(self):
-            globals.general_lock.acquire()
-            output = {"hostname": globals.hostname, "port": globals.port}
-            globals.general_lock.release()
-            return jsonify(output)
+class SystemInfo(Resource):
+    def get(self):
+        globals.general_lock.acquire()
+        output = {"memory_usage": globals.memory_usage, "cpu_usage": globals.cpu_usage, "network_usage": globals.network_usage}
+        globals.general_lock.release()
+        return jsonify(output)
+class Processes(Resource):
+    def get(self):
+        globals.general_lock.acquire()
+        output = {"process_list": globals.process_list}
+        globals.general_lock.release()
+        return jsonify(output)
+class ROS1Topic(Resource):
+    def get(self):
+        globals.general_lock.acquire()
+        output = {"topics": globals.topics}
+        globals.general_lock.release()
+        return jsonify(output)
+class ROS1Service(Resource):
+    def get(self):
+        globals.general_lock.acquire()
+        output = {"services": globals.services}
+        globals.general_lock.release()
+        return jsonify(output)
+class ROS1Nodes(Resource):
+    def get(self):
+        globals.general_lock.acquire()
+        output = {"nodes": globals.nodes}
+        globals.general_lock.release()
+        return jsonify(output)
+class ROS1NetworkInfo(Resource):
+    def get(self):
+        globals.general_lock.acquire()
+        output = {"hostname": globals.hostname, "port": globals.port}
+        globals.general_lock.release()
+        return jsonify(output)
+
+class ROS2Topic(Resource):
+    def get(self):
+        globals.general_lock.acquire()
+        output = {"topics": globals.topics}
+        globals.general_lock.release()
+        return jsonify(output)
+class ROS2Service(Resource):
+    def get(self):
+        globals.general_lock.acquire()
+        output = {"services": globals.services}
+        globals.general_lock.release()
+        return jsonify(output)
+class ROS2Nodes(Resource):
+    def get(self):
+        globals.general_lock.acquire()
+        output = {"nodes": globals.nodes}
+        globals.general_lock.release()
+        return jsonify(output)
+class ROS2NetworkInfo(Resource):
+    def get(self):
+        globals.general_lock.acquire()
+        output = {"hostname": globals.hostname, "port": globals.port}
+        globals.general_lock.release()
+        return jsonify(output)
+
+
+
+if __name__ == "__main__":
+    openParameterUpdateThread()
 
     # add the class to the API
     api.add_resource(SystemInfo, '/system')
@@ -232,8 +226,4 @@ def open_restful_server():
         api.add_resource(ROS2NetworkInfo, '/ros2/network')
 
 
-    app.run(debug=False)
-
-if __name__ == "__main__":
-    openParameterUpdateThread()
-    open_restful_server()
+    app.run(debug=False, use_reloader=False)
