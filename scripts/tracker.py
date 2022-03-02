@@ -74,7 +74,7 @@ class ROS2ServiceThread():
             #current_time = time.time()
             """
 
-            print("-------------------------------------------------------")
+            #print("-------------------------------------------------------")
             time.sleep(globals.UPDATE_FREQUENCY)
 
 class ROS1ServiceThread():

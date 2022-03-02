@@ -215,10 +215,15 @@ class ROS2:
     def getNodes(): # lgtm [py/not-named-self]
         in_except = False
         output = error = None
+        p = None
         try:
             p = Popen(["ros2", "node", "list", "-a"], stdout=PIPE, stderr=PIPE)
         except:
             in_except = True
+            # Sometimes Popen does not assign anything to p in case of an error. 
+            # This check is to prevent p.communicate() from throwing an exception.
+            if p is None:
+                raise NoROScoreError
             output, error = p.communicate()
             if error != 2:
                 # error code 2 is:
