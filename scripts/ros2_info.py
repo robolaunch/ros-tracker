@@ -1,7 +1,6 @@
 from subprocess import Popen, PIPE
 import os
 from globals import NoROScoreError, CannotParseError
-import traceback
 
 
 # I am assuming that in one topic there will not be more than one type
