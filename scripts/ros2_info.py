@@ -121,131 +121,140 @@ class ROS2:
             
         return return_list
 
+    def parseNode(string):
+        splitted_nodes = string.split()
+
+        """
+        0 is b'/minimal_publisher'
+        1 is b'Subscribers:'
+        2 is b'Publishers:'
+        3 is b'/parameter_events:'
+        4 is b'rcl_interfaces/msg/ParameterEvent'
+        5 is b'/rosout:'
+        6 is b'rcl_interfaces/msg/Log'
+        8 is b'Service'
+        9 is b'Servers:'
+        10 is b'/minimal_publisher/describe_parameters:'
+        11 is b'rcl_interfaces/srv/DescribeParameters'
+        12 is b'/minimal_publisher/get_parameter_types:'
+        13 is b'rcl_interfaces/srv/GetParameterTypes'
+        14 is b'/minimal_publisher/get_parameters:'
+        15 is b'rcl_interfaces/srv/GetParameters'
+        16 is b'/minimal_publisher/list_parameters:'
+        17 is b'rcl_interfaces/srv/ListParameters'
+        18 is b'/minimal_publisher/set_parameters:'
+        19 is b'rcl_interfaces/srv/SetParameters'
+        20 is b'/minimal_publisher/set_parameters_atomically:'
+        21 is b'rcl_interfaces/srv/SetParametersAtomically'
+        22 is b'Service'
+        23 is b'Clients:'
+        24 is b'Action'
+        25 is b'Servers:'
+        26 is b'Action'
+        27 is b'Clients:'
+        """
+        # first get subscribers
+        index = 2
+        subscribers = []
+        while True:
+            if splitted_nodes[index].decode("utf-8") == "Publishers:":
+                break
+            subscribers.append({"topic_name": splitted_nodes[index].decode("utf-8")[:-1], "topic_type": splitted_nodes[index+1].decode("utf-8")})
+            
+            index += 2
+
+        index += 1
+
+        # now get publishers
+        publishers = []
+        while True:
+            if splitted_nodes[index].decode("utf-8") == "Service":
+                break
+            publishers.append({"topic_name": splitted_nodes[index].decode("utf-8")[:-1], "topic_type": splitted_nodes[index+1].decode("utf-8")})
+            
+            index += 2
+        
+        index += 1
+
+        # now get services
+        services = []
+        index += 1# because it is "service servers"
+        while True:
+            if splitted_nodes[index].decode("utf-8") == "Service":
+                break
+            services.append({"service_name": splitted_nodes[index].decode("utf-8")[:-1], "service_type": splitted_nodes[index+1].decode("utf-8")})
+            
+            index += 2
+
+        index += 1
+
+        # now get action clients
+        action_clients = []
+        index +=1
+        while True:
+            if splitted_nodes[index].decode("utf-8") == "Action":
+                break
+            action_clients.append({"action_name": splitted_nodes[index].decode("utf-8")[:-1], "action_type": splitted_nodes[index+1].decode("utf-8")})
+            
+            index += 2
+
+        index += 2
+
+        # not get action servers
+        action_servers = []
+        index += 1
+        while (index + 1) < len(splitted_nodes):
+            action_servers.append({"action_name": splitted_nodes[index].decode("utf-8")[:-1], "action_type": splitted_nodes[index+1].decode("utf-8")})
+            
+            index += 2
+
+        # separate namespace
+        return {"subscribers": subscribers, "publishers": publishers, "services": services, "action_clients": action_clients, "action_servers": action_servers}
+        
+    
     # This function executes "rosnode list" command and returns the output
     def getNodes(): # lgtm [py/not-named-self]
+        in_except = False
+        output = error = None
         try:
-            p = Popen(["ros2", "node", "list"], stdout=PIPE, stderr=PIPE)
+            p = Popen(["ros2", "node", "list", "-a"], stdout=PIPE, stderr=PIPE)
         except:
-            raise NoROScoreError
-        output, error = p.communicate()
+            in_except = True
+            output, error = p.communicate()
+            if error != 2:
+                # error code 2 is:
+                # There are 2 nodes in the graph with the exact name "/_ros2cli_daemon_0". You are seeing information about only one of them.
+                # This is not crucial, and not showing that ROS2 is not running.
+                # passing this error
+                raise NoROScoreError
+
+        if not in_except:
+            output, error = p.communicate()
         if p.returncode != 0:
             raise NoROScoreError
 
 
         output = output.split()
         i = 0
-
+        return_list = []
         while i < len(output):
             output_together = output[i].decode("utf-8")
-
-            p2 = Popen(["ros2", "node", "info", output_together], stdout=PIPE, stderr=PIPE)
+    
+            p2 = Popen(["ros2", "node", "info", "--include-hidden", output_together], stdout=PIPE, stderr=PIPE)
             p2.wait()
             p2.wait()
             output2, error = p2.communicate()
-            if p2.returncode != 0:
+            if p2.returncode != 0 and p2.returncode != 1:
+                print("Error: " + str(p2.returncode) + " " + str(p2.returncode != 1))
                 raise NoROScoreError
-            
-            output2 = output2.split()
-            """
-            i = 0
-            while i < len(output2):
-                print("%d is " %i + str(output2[i]))
-                i += 1
-            """
 
-            """
-            0 is b'/minimal_publisher'
-            1 is b'Subscribers:'
-            2 is b'Publishers:'
-            3 is b'/parameter_events:'
-            4 is b'rcl_interfaces/msg/ParameterEvent'
-            5 is b'/rosout:'
-            6 is b'rcl_interfaces/msg/Log'
-            8 is b'Service'
-            9 is b'Servers:'
-            10 is b'/minimal_publisher/describe_parameters:'
-            11 is b'rcl_interfaces/srv/DescribeParameters'
-            12 is b'/minimal_publisher/get_parameter_types:'
-            13 is b'rcl_interfaces/srv/GetParameterTypes'
-            14 is b'/minimal_publisher/get_parameters:'
-            15 is b'rcl_interfaces/srv/GetParameters'
-            16 is b'/minimal_publisher/list_parameters:'
-            17 is b'rcl_interfaces/srv/ListParameters'
-            18 is b'/minimal_publisher/set_parameters:'
-            19 is b'rcl_interfaces/srv/SetParameters'
-            20 is b'/minimal_publisher/set_parameters_atomically:'
-            21 is b'rcl_interfaces/srv/SetParametersAtomically'
-            22 is b'Service'
-            23 is b'Clients:'
-            24 is b'Action'
-            25 is b'Servers:'
-            26 is b'Action'
-            27 is b'Clients:'
-            """
-            # first get subscribers
-            index = 2
-            subscribers = []
-            while True:
-                if output2[index].decode("utf-8") == "Publishers:":
-                    break
-                # topic and its topic together
-                subscribers.append({"topic_name": output2[index].decode("utf-8")[:-1], "topic_type": output2[index+1].decode("utf-8")})
-                
-                index += 2
-
-            index += 1
-
-            # now get publishers
-            publishers = []
-            while True:
-                if output2[index].decode("utf-8") == "Service":
-                    break
-                # topic and its topic together
-                publishers.append({"topic_name": output2[index].decode("utf-8")[:-1], "topic_type": output2[index+1].decode("utf-8")})
-                
-                index += 2
-            
-            index += 1
-
-            # now get services
-            services = []
-            index += 1# because it is "service servers"
-            while True:
-                if output2[index].decode("utf-8") == "Service":
-                    break
-                # topic and its topic together
-                services.append({"service_name": output2[index].decode("utf-8")[:-1], "service_type": output2[index+1].decode("utf-8")})
-                
-                index += 2
-
-            index += 1
-
-            # now get action clients
-            action_clients = []
-            index +=1
-            while True:
-                if output2[index].decode("utf-8") == "Action":
-                    break
-                # topic and its topic together
-                action_clients.append({"action_name": output2[index].decode("utf-8")[:-1], "action_type": output2[index+1].decode("utf-8")})
-                
-                index += 2
-
-            index += 2
-
-            # not get action servers
-            action_servers = []
-            index += 1
-            while (index + 1) < len(output2):
-                # topic and its topic together
-                action_servers.append({"action_name": output2[index].decode("utf-8")[:-1], "action_type": output2[index+1].decode("utf-8")})
-                
-                index += 2
-
-            # separate namespace
-            output[i] = {"namespace": output_together[:output_together.find('/')+1], "node_name": output_together[output_together.find('/')+1:], "subscribers": subscribers, "publishers": publishers, "services": services, "action_clients": action_clients, "action_servers": action_servers}
+            temp_dict = ROS2.parseNode(output2)
+            temp_dict["namespace"] = output_together[:output_together.find('/')+1]
+            temp_dict["node_name"] = output_together[output_together.find('/')+1:]
+            return_list.append(temp_dict)
             i += 1
-        return output
+            
+        return return_list
 
     # There is way less information in this than I imagined
     # It may be checked again.

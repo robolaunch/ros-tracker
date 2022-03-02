@@ -1,8 +1,7 @@
 import sys
 import time
 
-from numpy import source
-from helpers import getTogetherTests, compareDictionaries
+from helpers import getTogetherTests
 import pytest
 import json
 from subprocess import Popen, PIPE, check_output
