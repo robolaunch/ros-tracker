@@ -1,11 +1,11 @@
 from subprocess import Popen, PIPE
 import os
-import globals
+from globals import NoROScoreError, CannotParseError
 
 # This class is just to wrap ROS1 functions into one structure
 class ROS1:
-
-    def parseTopic(string): # lgtm [py/not-named-self]
+    @staticmethod
+    def parseTopic(string):
         if isinstance(string, (bytes, bytearray)):
             string = string.decode("utf-8") # just if the data comes from a byte array
 
@@ -24,16 +24,16 @@ class ROS1:
         try:
             type_of_topic = splitted[1]
         except IndexError:
-            raise globals.CannotParseError
+            raise CannotParseError
 
         if splitted[0] != "Type:" or splitted[2] != "Publishers:":
-            raise globals.CannotParseError
+            raise CannotParseError
 
         publisher_cnt = 3
         publishers = []
         while True:
             if publisher_cnt >= len(splitted):
-                raise globals.CannotParseError
+                raise CannotParseError
             # that means publishers are over
             if splitted[publisher_cnt] != "*":
                 if splitted[publisher_cnt] == "None":
@@ -47,7 +47,7 @@ class ROS1:
             publisher_cnt += 3
 
         if splitted[publisher_cnt] != "Subscribers:":
-            raise globals.CannotParseError
+            raise CannotParseError
             
         subscribers_cnt = publisher_cnt + 1
         subscribers = []        
@@ -67,11 +67,12 @@ class ROS1:
         return {"type": type_of_topic, "publishers": publishers, "subscribers": subscribers}
     
     # This function gets the current ros topics with the command "rostopic list"
-    def getTopics(): # lgtm [py/not-named-self]
+    @staticmethod
+    def getTopics():
         p = Popen(["rostopic", "list"], stdout=PIPE, stderr=PIPE)
         stdout_list, stderr_list = p.communicate()
         if p.returncode != 0:
-            raise globals.NoROScoreError
+            raise NoROScoreError
 
         topic_list_splitted = stdout_list.split()
         parsed_topics = []
@@ -82,7 +83,7 @@ class ROS1:
             p2 = Popen(["rostopic", "info", topic_name], stdout=PIPE, stderr=PIPE)
             stdout_info, stderr_info = p2.communicate()
             if p2.returncode != 0:
-                raise globals.NoROScoreError
+                raise NoROScoreError
 
             ret = ROS1.parseTopic(stdout_info)
             ret["topic_name"] = topic_name
@@ -91,19 +92,20 @@ class ROS1:
             i += 1
         return parsed_topics
 
-    def parseNode(string): # lgtm [py/not-named-self]
+    @staticmethod
+    def parseNode(string):
         if isinstance(string, (bytes, bytearray)):
             string = string.decode("utf-8") # just if the data comes from a byte array
 
         splitted = string.split()
         parsed_node_info = []
         if len(splitted) == 0:
-            raise globals.CannotParseError
+            raise CannotParseError
         i = 0
         while i < len(splitted):
             output_together = splitted[i]
             if output_together[0] != '/':
-                raise globals.CannotParseError
+                raise CannotParseError
             # separate namespace
             #output_together = output_together[1:] # separating the first '/'
             try:
@@ -111,20 +113,22 @@ class ROS1:
                 if parsed_node_info[-1]["namespace"] == "":
                     parsed_node_info[-1]["namespace"] = '/'
             except:
-                raise globals.CannotParseError
+                raise CannotParseError
             i += 1
         return parsed_node_info
     
     # This function executes "rosnode list" command and returns the output
-    def getNodes(): # lgtm [py/not-named-self]
+    @staticmethod
+    def getNodes():
         p = Popen(["rosnode", "list"], stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
         if p.returncode != 0:
-            raise globals.NoROScoreError
+            raise NoROScoreError
 
         return ROS1.parseNode(stdout)
 
-    def parseService(string): # lgtm [py/not-named-self]
+    @staticmethod
+    def parseService(string):
         if isinstance(string, (bytes, bytearray)):
             string = string.decode("utf-8") # just if the data comes from a byte array
         splitted = string.split()
@@ -139,10 +143,10 @@ class ROS1:
         # 6 is "Args:" ###### Will not used
 
         if len(splitted) < 6:
-            raise globals.CannotParseError
+            raise CannotParseError
         
         if splitted[0] != "Node:" or splitted[2] != "URI:" or splitted[4] != "Type:" or splitted[6] != "Args:":
-            raise globals.CannotParseError
+            raise CannotParseError
 
         node_name = splitted[1]
         uri = splitted[3]
@@ -150,12 +154,13 @@ class ROS1:
         
         return {"node_name": node_name, "uri": uri, "type": type_of_service}
 
+    @staticmethod
     # This function gets the current ros services with the command "rosservice list"
-    def getServices(): # lgtm [py/not-named-self]
+    def getServices():
         p = Popen(["rosservice", "list"], stdout=PIPE, stderr=PIPE)
         stdout_list, stderr_list = p.communicate()
         if p.returncode != 0:
-            raise globals.NoROScoreError
+            raise NoROScoreError
 
         service_list_splitted = stdout_list.split()
         i = 0
@@ -165,7 +170,7 @@ class ROS1:
             p2 = Popen(["rosservice", "info", service_name], stdout=PIPE, stderr=PIPE)
             stdout_info, stderr_info = p2.communicate()
             if p2.returncode != 0:
-                raise globals.NoROScoreError
+                raise NoROScoreError
 
             service_list_splitted[i] = ROS1.parseService(stdout_info)
             service_list_splitted[i]["service_name"] = service_name
@@ -173,11 +178,12 @@ class ROS1:
         return service_list_splitted
 
     # This function gets the current ROS hostname and port
-    def getHostnamePort(): # lgtm [py/not-named-self]
+    @staticmethod
+    def getHostnamePort():
         try:
             address = os.environ.get("ROS_MASTER_URI")
         except:
-            raise globals.NoROScoreError
+            raise NoROScoreError
         # http://localhost:11311
         if address[:7] != "http://":
             print("ERROR! ROS_MASTER_URI is not set correctly")

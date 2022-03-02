@@ -9,6 +9,7 @@ from globals import NoROScoreError, CannotParseError
 # This class is just to wrap ROS1 functions into one structure
 class ROS2:
 
+    @staticmethod
     def parseTopic(string):
         topic_splitted = string.split()
         if len(topic_splitted) < 4:
@@ -95,7 +96,8 @@ class ROS2:
         return {"type_of_topic": type_of_topic, "publisher_count": publisher_count, "publisher_nodes": publisher_nodes, "subscriber_count": subscriber_count, "subscriber_nodes": subscriber_nodes}
 
     # This function gets the current ros topics with the command "rostopic list"
-    def getTopics(): # lgtm [py/not-named-self]
+    @staticmethod
+    def getTopics():
         try:
             p = Popen(["ros2", "topic", "list", "--include-hidden-topics"], stdout=PIPE, stderr=PIPE)
         except:
@@ -120,6 +122,7 @@ class ROS2:
             
         return return_list
 
+    @staticmethod
     def parseNode(string):
         splitted_nodes = string.split()
 
@@ -210,9 +213,9 @@ class ROS2:
         # separate namespace
         return {"subscribers": subscribers, "publishers": publishers, "services": services, "action_clients": action_clients, "action_servers": action_servers}
         
-    
     # This function executes "rosnode list" command and returns the output
-    def getNodes(): # lgtm [py/not-named-self]
+    @staticmethod
+    def getNodes():
         in_except = False
         output = error = None
         p = None
@@ -263,7 +266,8 @@ class ROS2:
     # There is way less information in this than I imagined
     # It may be checked again.
     # This function gets the current ros services with the command "rosservice list"
-    def getServices(): # lgtm [py/not-named-self]
+    @staticmethod
+    def getServices():
         try:
             p = Popen(["ros2", "service","--include-hidden-services" , "list", "-t"], stdout=PIPE, stderr=PIPE)
         except:
@@ -283,7 +287,8 @@ class ROS2:
         return return_list
 
     # This function gets the current ROS hostname and port
-    def getHostnamePort(): # lgtm [py/not-named-self]
+    @staticmethod
+    def getHostnamePort():
         address = os.environ.get("ROS_MASTER_URI")
         # http://localhost:11311
         if address[:7] != "http://":
