@@ -79,7 +79,7 @@ python3 -m pytest
 ### Roadmap:
 
 - [X] Tests for the currently implemented parts
-- [ ] ROS2 lacking parts
+- [X] ROS2 lacking parts
 - [ ] Storing custom topics with rosbag
 - [ ] Other lacking parts
 - [ ] DDS specific network information
