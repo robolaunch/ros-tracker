@@ -58,7 +58,7 @@ python3 -m pytest
 - - [X] Subscriber nodes along with QoS information
 - [X] ROS2 Services
 - [X] ROS2 Nodes
-- [ ] ROS2 Actions
+- [X] ROS2 Actions
 - [ ] ROS2 Network
 - [X] ROS1 Topics
 - - [X] Publisher nodes and URIs(I think these URIs are special for topics and services, but need to check)
