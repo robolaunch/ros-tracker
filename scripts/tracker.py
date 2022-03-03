@@ -37,6 +37,13 @@ def ros2Loop():
         #print("ROS2 services update time: " + str(time.time() - current_time))
         #current_time = time.time()
 
+        temp_actions = ROS2.getActions()
+        globals.general_lock.acquire()
+        globals.actions = temp_actions
+        globals.general_lock.release()
+        #print("ROS2 actions update time: " + str(time.time() - current_time))
+        #current_time = time.time()
+
         """
         temp_hostname, temp_port = ROS2.getHostnamePort()
         globals.general_lock.acquire()
@@ -237,7 +244,12 @@ class ROS2NetworkInfo(Resource):
         globals.general_lock.release()
         return jsonify(output)
 
-
+class ROS2ActionInfo(Resource):
+    def get(self):
+        globals.general_lock.acquire()
+        output = {"actions": globals.actions}
+        globals.general_lock.release()
+        return jsonify(output)
 
 if __name__ == "__main__":
     openParameterUpdateThread()
@@ -256,6 +268,7 @@ if __name__ == "__main__":
         api.add_resource(ROS2Service, '/ros2/services')
         api.add_resource(ROS2Nodes, '/ros2/nodes')
         api.add_resource(ROS2NetworkInfo, '/ros2/network')
+        api.add_resource(ROS2ActionInfo, '/ros2/actions')
 
 
     app.run(host="0.0.0.0", debug=False, use_reloader=False)

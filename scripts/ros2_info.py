@@ -276,6 +276,7 @@ class ROS2:
         if p.returncode != 0:
             raise NoROScoreError
 
+        # ros2 service do not have info command, it only gives name and type of the service
         output = output.split()
         return_list = []
         i = 0
@@ -285,6 +286,41 @@ class ROS2:
             return_list.append({"service_name": service_name, "service_type": service_type})
             i += 2
         return return_list
+
+    @staticmethod
+    def parseActions(string):
+        """
+        Action: /fibonacci
+        Action clients: 0
+        Action servers: 1
+        /minimal_action_server [example_interfaces/action/Fibonacci]
+        """
+        splitted = string.decode("utf-8").split()
+
+        # I am assuming that there will be only one action server
+        return {"action_name": splitted[1], "action_client_count": splitted[4], "action_server_count": splitted[7], "action_node_name": splitted[8], "action_node_type": splitted[9][1:-1]}
+
+
+    @staticmethod
+    def getActions():
+        try:
+            p = Popen(["ros2", "action" , "list"], stdout=PIPE, stderr=PIPE)
+        except:
+            raise NoROScoreError
+        output, error = p.communicate()
+        if p.returncode != 0:
+            raise NoROScoreError
+
+        # ros2 service do not have info command, it only gives name and type of the service
+        output = output.split()
+        return_list = []
+        for action_name in output:
+            p2 = Popen(["ros2", "action", "info", action_name.decode("utf-8"), "-t"], stdout=PIPE, stderr=PIPE)
+            action_info, error = p2.communicate()
+            return_list.append(ROS2.parseActions(action_info))
+            
+        return return_list
+
 
     # This function gets the current ROS hostname and port
     @staticmethod
