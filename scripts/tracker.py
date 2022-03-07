@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_restful import Api, Resource
-from system_info import get_memory_usage, get_network_usage_dict, get_process_cpu_usage, get_total_cpu_usage
+import system_info
 from ros1_info import ROS1
 from ros2_info import ROS2
 import globals
@@ -53,37 +53,10 @@ def ros2Loop():
         globals.general_lock.release()
         """
 
-        temp_memory_usage = get_memory_usage()
-        globals.general_lock.acquire()
-        globals.memory_usage = temp_memory_usage
-        globals.general_lock.release()
-        #print("ROS2 memory usage update time: " + str(time.time() - current_time))
-        #current_time = time.time()
-
-        temp_cpu_usage = get_total_cpu_usage()
-        globals.general_lock.acquire()
-        globals.cpu_usage = temp_cpu_usage
-        globals.general_lock.release()
-        #print("ROS2 cpu usage update time: " + str(time.time() - current_time))
-
-        temp_network_usage = get_network_usage_dict()
-        globals.general_lock.acquire()
-        globals.network_usage = temp_network_usage
-        globals.general_lock.release()
-        #print("ROS2 network usage update time: " + str(time.time() - current_time))
-        #current_time = time.time()
-
-        """
-        temp_process_list = get_process_cpu_usage()
-        globals.general_lock.acquire()
-        globals.process_list = temp_process_list
-        globals.general_lock.release()
-        #print("ROS2 process list update time: " + str(time.time() - current_time))
-        #current_time = time.time()
-        """
-
         #print("-------------------------------------------------------")
+        print("sleeping 10 sec")
         time.sleep(globals.UPDATE_FREQUENCY)
+        print("slept 10 sec")
 
 def ros1Loop():
     while True:
@@ -118,33 +91,43 @@ def ros1Loop():
         #print("ROS1 hostname and port update time: " + str(time.time() - current_time))
         #current_time = time.time()
 
-        temp_memory_usage = get_memory_usage()
+        time.sleep(globals.UPDATE_FREQUENCY)
+
+def systemLoop():
+    while True:
+        temp_memory_usage = system_info.getMemoryUsage()
         globals.general_lock.acquire()
         globals.memory_usage = temp_memory_usage
         globals.general_lock.release()
-        #print("ROS1 memory usage update time: " + str(time.time() - current_time))
+        #print("ROS2 memory usage update time: " + str(time.time() - current_time))
         #current_time = time.time()
 
-        temp_cpu_usage = get_total_cpu_usage()
+        temp_cpu_usage = system_info.getTotalCpuUsage()
         globals.general_lock.acquire()
         globals.cpu_usage = temp_cpu_usage
         globals.general_lock.release()
-        #print("ROS1 cpu usage update time: " + str(time.time() - current_time))
-        #current_time = time.time()
+        #print("ROS2 cpu usage update time: " + str(time.time() - current_time))
 
-        temp_network_usage = get_network_usage_dict()
+        temp_network_usage = system_info.getNetworkUsageDict()
         globals.general_lock.acquire()
         globals.network_usage = temp_network_usage
         globals.general_lock.release()
-        #print("ROS1 network usage update time: " + str(time.time() - current_time))
+        #print("ROS2 network usage update time: " + str(time.time() - current_time))
         #current_time = time.time()
 
+        temp_uptime = system_info.getUptime()
+        globals.general_lock.acquire()
+        globals.uptime = temp_uptime
+        globals.general_lock.release()
+
+        """
         temp_process_list = get_process_cpu_usage()
         globals.general_lock.acquire()
         globals.process_list = temp_process_list
         globals.general_lock.release()
-        #print("ROS1 process list update time: " + str(time.time() - current_time))
+        #print("ROS2 process list update time: " + str(time.time() - current_time))
         #current_time = time.time()
+        """
 
         time.sleep(globals.UPDATE_FREQUENCY)
 
@@ -182,6 +165,8 @@ def openThreads():
         __thread = Thread(target = ros2Loop)
         __thread.start()
     
+    __thread_system = Thread(target = systemLoop)
+    __thread_system.start()
     __thread_bag = Thread(target = ROSBag.rosBagHandler)
     __thread_bag.start()
 
@@ -190,7 +175,7 @@ def openThreads():
 class SystemInfo(Resource):
     def get(self):
         globals.general_lock.acquire()
-        output = {"memory_usage": globals.memory_usage, "cpu_usage": globals.cpu_usage, "network_usage": globals.network_usage}
+        output = {"memory_usage": globals.memory_usage, "cpu_usage": globals.cpu_usage, "network_usage": globals.network_usage, "uptime": globals.uptime}
         globals.general_lock.release()
         return jsonify(output)
 class Processes(Resource):

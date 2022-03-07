@@ -2,7 +2,7 @@ from threading import Lock
 import os
 
 ROS_VERSION = None
-UPDATE_FREQUENCY = 0.1
+UPDATE_FREQUENCY = 1
 
 class CannotParseError(Exception):
     pass
@@ -29,6 +29,7 @@ memory_usage = None
 cpu_usage = None
 network_usage = None
 process_list = None
+uptime = None
 
 rosbag_lock = Lock()
 rosbag_start_list = []

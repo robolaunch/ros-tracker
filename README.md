@@ -46,7 +46,7 @@ python3 -m pytest
 - - [X] Memory usage
 - - [X] Network usage
 - - [ ] Some network statistics may be needed here?
-- - [ ] Uptime
+- - [X] Uptime
 - [ ] Process Info
 - - [X] Process name
 - - [X] Process PID

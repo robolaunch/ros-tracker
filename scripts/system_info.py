@@ -1,7 +1,10 @@
 import psutil
+import time
+
+_boot_time = psutil.boot_time()
 
 # This function returns the memory used in the system in kilobytes
-def get_memory_usage():
+def getMemoryUsage():
     # get the memory usage
     memory_usage = psutil.virtual_memory()
     # return the dictionary
@@ -10,7 +13,7 @@ def get_memory_usage():
 # Returns all processes and their CPU usages in a list
 # This function takes too much time, because while taking CPU usages, we get an average usage of "0.01" seconds for each process.
 # This must be executed in a separate thread.
-def get_process_cpu_usage():
+def getProcessCpuUsage():
     process_cpu_usage = []
     for proc in psutil.process_iter():
         try:
@@ -24,15 +27,18 @@ def get_process_cpu_usage():
     return process_cpu_usage
 
 # This function returns the total CPU usage of the system
-def get_total_cpu_usage():
+def getTotalCpuUsage():
     # this returns 0 in every first call, I don't know the reason
     total_cpu_usage = psutil.cpu_percent()
     return total_cpu_usage
 
 # This function returns the network usage of the system as a dictionary in kilobytes
 # This can be used to get the error rate or drop rate in the network in future!
-def get_network_usage_dict():
+def getNetworkUsageDict():
     # get the network usage
     network_usage = psutil.net_io_counters()
     # return the dictionary
     return {'kbytes_sent': network_usage.bytes_sent/1024, 'kbytes_recv': network_usage.bytes_recv/1024}
+
+def getUptime():
+    return time.time() - _boot_time
