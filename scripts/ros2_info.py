@@ -158,7 +158,7 @@ class ROS2:
         # first get subscribers
         index = 2
         subscribers = []
-        while True:
+        while index < len(splitted_nodes):
             if splitted_nodes[index].decode("utf-8") == "Publishers:":
                 break
             subscribers.append({"topic_name": splitted_nodes[index].decode("utf-8")[:-1], "topic_type": splitted_nodes[index+1].decode("utf-8")})

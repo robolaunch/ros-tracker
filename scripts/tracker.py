@@ -7,7 +7,7 @@ import globals
 from threading import Thread
 import time
 from std_msgs.msg import String
-from rosbag import rosbagHandler
+from rosbag import ROSBag
 
 # start a Flask web server
 app = Flask(__name__)
@@ -174,8 +174,6 @@ def openThreads():
     if globals.ROS_VERSION == 1:
         __thread = Thread(target = ros1Loop)
         __thread.start()
-        __thread_bag = Thread(target = rosbagHandler)
-        __thread_bag.start()
         # rosnode cannot be started in another thread. It will be checked later. TODO
         #__thread2 = Thread(target = ROS1ServiceThread.rosNode)
         #__thread2.start()
@@ -183,6 +181,9 @@ def openThreads():
     else:
         __thread = Thread(target = ros2Loop)
         __thread.start()
+    
+    __thread_bag = Thread(target = ROSBag.rosBagHandler)
+    __thread_bag.start()
 
 
 
@@ -230,21 +231,19 @@ class ROS1ActionInfo(Resource):
         globals.general_lock.release()
         return jsonify(output)
 
-class ROS1BagCommand(Resource):
+class ROSBagCommand(Resource):
     def get(self):
         pass
 
     def put(self):
+        print("got put!")
         command = request.form["command"]
         bag_name = request.form["bag_name"]
-        #print("command: " + command + " topic_name: " + topic_name + " bag_name: " + bag_name)
-        #print("types: " + str(type(command)) + " " + str(type(topic_name)) + " " + str(type(bag_name)))
-        #topic_name = None
-        #bag_name = None
         if command == "start":
             topic_name = request.form["topic_name"]
             #------------------------------
             globals.rosbag_lock.acquire()
+            print("appending")
             globals.rosbag_start_list.append({"topic_name": topic_name, "bag_name": bag_name})
             globals.rosbag_lock.release()
             #------------------------------
@@ -301,7 +300,7 @@ if __name__ == "__main__":
         api.add_resource(ROS1Nodes, '/ros1/nodes')
         api.add_resource(ROS1NetworkInfo, '/ros1/network')
         api.add_resource(ROS1ActionInfo, '/ros1/actions')
-        api.add_resource(ROS1BagCommand, '/ros1/bag')
+        api.add_resource(ROSBagCommand, '/ros1/bag')
 
     elif globals.ROS_VERSION == 2:
         api.add_resource(ROS2Topic, '/ros2/topics')
@@ -309,6 +308,7 @@ if __name__ == "__main__":
         api.add_resource(ROS2Nodes, '/ros2/nodes')
         api.add_resource(ROS2NetworkInfo, '/ros2/network')
         api.add_resource(ROS2ActionInfo, '/ros2/actions')
+        api.add_resource(ROSBagCommand, '/ros2/bag')
 
 
     app.run(host="0.0.0.0", debug=True, use_reloader=False)
