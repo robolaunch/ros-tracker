@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_restful import Api, Resource
 from system_info import get_memory_usage, get_network_usage_dict, get_process_cpu_usage, get_total_cpu_usage
 from ros1_info import ROS1
@@ -7,6 +7,7 @@ import globals
 from threading import Thread
 import time
 from std_msgs.msg import String
+from rosbag import rosbagHandler
 
 # start a Flask web server
 app = Flask(__name__)
@@ -169,10 +170,12 @@ def ros1Node():
         rate.sleep()
         #print("slept" + str(i))
             
-def openParameterUpdateThread():
+def openThreads():
     if globals.ROS_VERSION == 1:
         __thread = Thread(target = ros1Loop)
         __thread.start()
+        __thread_bag = Thread(target = rosbagHandler)
+        __thread_bag.start()
         # rosnode cannot be started in another thread. It will be checked later. TODO
         #__thread2 = Thread(target = ROS1ServiceThread.rosNode)
         #__thread2.start()
@@ -227,6 +230,31 @@ class ROS1ActionInfo(Resource):
         globals.general_lock.release()
         return jsonify(output)
 
+class ROS1BagCommand(Resource):
+    def get(self):
+        pass
+
+    def put(self):
+        command = request.form["command"]
+        bag_name = request.form["bag_name"]
+        #print("command: " + command + " topic_name: " + topic_name + " bag_name: " + bag_name)
+        #print("types: " + str(type(command)) + " " + str(type(topic_name)) + " " + str(type(bag_name)))
+        #topic_name = None
+        #bag_name = None
+        if command == "start":
+            topic_name = request.form["topic_name"]
+            #------------------------------
+            globals.rosbag_lock.acquire()
+            globals.rosbag_start_list.append({"topic_name": topic_name, "bag_name": bag_name})
+            globals.rosbag_lock.release()
+            #------------------------------
+        if command == "stop":
+            #------------------------------
+            globals.rosbag_lock.acquire()
+            globals.rosbag_close_list.append({"bag_name": bag_name})
+            globals.rosbag_lock.release()
+            #------------------------------
+
 class ROS2Topic(Resource):
     def get(self):
         globals.general_lock.acquire()
@@ -260,7 +288,7 @@ class ROS2ActionInfo(Resource):
         return jsonify(output)
 
 if __name__ == "__main__":
-    openParameterUpdateThread()
+    openThreads()
 
     # add the class to the API
     api.add_resource(SystemInfo, '/system')
@@ -273,6 +301,7 @@ if __name__ == "__main__":
         api.add_resource(ROS1Nodes, '/ros1/nodes')
         api.add_resource(ROS1NetworkInfo, '/ros1/network')
         api.add_resource(ROS1ActionInfo, '/ros1/actions')
+        api.add_resource(ROS1BagCommand, '/ros1/bag')
 
     elif globals.ROS_VERSION == 2:
         api.add_resource(ROS2Topic, '/ros2/topics')
@@ -282,4 +311,4 @@ if __name__ == "__main__":
         api.add_resource(ROS2ActionInfo, '/ros2/actions')
 
 
-    app.run(host="0.0.0.0", debug=False, use_reloader=False)
+    app.run(host="0.0.0.0", debug=True, use_reloader=False)

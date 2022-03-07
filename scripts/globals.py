@@ -30,3 +30,8 @@ cpu_usage = None
 network_usage = None
 process_list = None
 
+rosbag_lock = Lock()
+rosbag_start_list = []
+rosbag_close_list = []
+rosbagged_dict = {}
+
