@@ -87,9 +87,10 @@ def ros2Loop():
 def ros1Loop():
     while True:
         #current_time = time.time()
-        temp_topics = ROS1.getTopics()
+        temp_topics, temp_actions = ROS1.getTopicsActions()
         globals.general_lock.acquire()
         globals.topics = temp_topics
+        globals.actions = temp_actions
         globals.general_lock.release()
         #print("ROS1 topics update time: " + str(time.time() - current_time))
         #current_time = time.time()
@@ -219,6 +220,13 @@ class ROS1NetworkInfo(Resource):
         globals.general_lock.release()
         return jsonify(output)
 
+class ROS1ActionInfo(Resource):
+    def get(self):
+        globals.general_lock.acquire()
+        output = {"actions": globals.actions}
+        globals.general_lock.release()
+        return jsonify(output)
+
 class ROS2Topic(Resource):
     def get(self):
         globals.general_lock.acquire()
@@ -257,12 +265,15 @@ if __name__ == "__main__":
     # add the class to the API
     api.add_resource(SystemInfo, '/system')
     api.add_resource(Processes, '/processes')
+    print("ROS version: " + str(globals.ROS_VERSION))
     
     if globals.ROS_VERSION == 1:
         api.add_resource(ROS1Topic, '/ros1/topics')
         api.add_resource(ROS1Service, '/ros1/services')
         api.add_resource(ROS1Nodes, '/ros1/nodes')
         api.add_resource(ROS1NetworkInfo, '/ros1/network')
+        api.add_resource(ROS1ActionInfo, '/ros1/actions')
+
     elif globals.ROS_VERSION == 2:
         api.add_resource(ROS2Topic, '/ros2/topics')
         api.add_resource(ROS2Service, '/ros2/services')

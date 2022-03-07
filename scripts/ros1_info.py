@@ -5,7 +5,7 @@ from globals import NoROScoreError, CannotParseError
 # This class is just to wrap ROS1 functions into one structure
 class ROS1:
     @staticmethod
-    def parseTopic(string):
+    def parseTopicorAction(string):
         if isinstance(string, (bytes, bytearray)):
             string = string.decode("utf-8") # just if the data comes from a byte array
 
@@ -68,7 +68,7 @@ class ROS1:
     
     # This function gets the current ros topics with the command "rostopic list"
     @staticmethod
-    def getTopics():
+    def getTopicsActions():
         p = Popen(["rostopic", "list"], stdout=PIPE, stderr=PIPE)
         stdout_list, stderr_list = p.communicate()
         if p.returncode != 0:
@@ -76,6 +76,7 @@ class ROS1:
 
         topic_list_splitted = stdout_list.split()
         parsed_topics = []
+        parsed_actions = []
         i = 0
         while i < len(topic_list_splitted):
             topic_name = topic_list_splitted[i].decode("utf-8")
@@ -85,12 +86,18 @@ class ROS1:
             if p2.returncode != 0:
                 raise NoROScoreError
 
-            ret = ROS1.parseTopic(stdout_info)
-            ret["topic_name"] = topic_name
-
-            parsed_topics.append(ret)
+            last_name = topic_name[topic_name.rfind("/")+1:]
+            if last_name in ["cancel", "feedback", "goal", "result", "status"]:
+                ret = ROS1.parseTopicorAction(stdout_info)
+                ret["action_name"] = topic_name
+                parsed_actions.append(ret)
+            else:
+                ret = ROS1.parseTopicorAction(stdout_info)
+                ret["topic_name"] = topic_name
+                parsed_topics.append(ret)
             i += 1
-        return parsed_topics
+            
+        return parsed_topics, parsed_actions
 
     @staticmethod
     def parseNode(string):

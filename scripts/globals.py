@@ -21,6 +21,7 @@ elif __ros_distro == 'foxy' or __ros_distro == 'dashing' or __ros_distro == 'gal
 general_lock = Lock()
 topics = None
 services = None
+actions = None
 nodes = None
 hostname = None
 port = None
