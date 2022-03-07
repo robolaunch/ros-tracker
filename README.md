@@ -15,6 +15,7 @@ Currently the following addresses are in use:
 /rosX/services
 /rosX/nodes
 /rosX/network
+/rosX/bag
 ```
 X is either 1 or 2.
 
