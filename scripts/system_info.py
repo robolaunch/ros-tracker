@@ -30,7 +30,8 @@ def getProcessCpuUsage():
 def getTotalCpuUsage():
     # this returns 0 in every first call, I don't know the reason
     total_cpu_usage = psutil.cpu_percent()
-    return total_cpu_usage
+    core_cpu_usage = psutil.cpu_percent(percpu=True)
+    return total_cpu_usage, core_cpu_usage
 
 # This function returns the network usage of the system as a dictionary in kilobytes
 # This can be used to get the error rate or drop rate in the network in future!

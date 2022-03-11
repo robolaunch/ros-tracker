@@ -27,6 +27,7 @@ hostname = None
 port = None
 memory_usage = None
 cpu_usage = None
+cpu_core_usage = None
 network_usage = None
 process_list = None
 uptime = None

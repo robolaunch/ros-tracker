@@ -102,9 +102,10 @@ def systemLoop():
         #print("ROS2 memory usage update time: " + str(time.time() - current_time))
         #current_time = time.time()
 
-        temp_cpu_usage = system_info.getTotalCpuUsage()
+        temp_cpu_usage, temp_core_usage = system_info.getTotalCpuUsage()
         globals.general_lock.acquire()
         globals.cpu_usage = temp_cpu_usage
+        globals.cpu_core_sage = temp_core_usage
         globals.general_lock.release()
         #print("ROS2 cpu usage update time: " + str(time.time() - current_time))
 
@@ -175,7 +176,7 @@ def openThreads():
 class SystemInfo(Resource):
     def get(self):
         globals.general_lock.acquire()
-        output = {"memory_usage": globals.memory_usage, "cpu_usage": globals.cpu_usage, "network_usage": globals.network_usage, "uptime": globals.uptime}
+        output = {"memory_usage": globals.memory_usage, "cpu_usage": globals.cpu_usage, "cpu_core_usage": globals.cpu_core_usage ,"network_usage": globals.network_usage, "uptime": globals.uptime}
         globals.general_lock.release()
         return jsonify(output)
 class Processes(Resource):
