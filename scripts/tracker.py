@@ -8,6 +8,8 @@ from threading import Thread
 import time
 from std_msgs.msg import String
 from rosbag import ROSBag
+import os
+import shutil
 
 # start a Flask web server
 app = Flask(__name__)
@@ -240,6 +242,55 @@ class ROSBagCommand(Resource):
             globals.rosbag_lock.release()
             #------------------------------
 
+class ROS1Launch(Resource):
+    def put(self):
+        # get arguments
+        package_names = request.form["package_names"]
+        launch_files = request.form["launch_files"]
+        repo_url = request.form["repo_url"]
+        repo_branch = request.form["repo_branch"]
+        repo_name = "UGV" # I will detect it later...
+        ws_path = request.form["ws_path"]
+        ws_path_inside_workspace = request.form["ws_path"] + "/" + repo_name
+
+        # overrides for now...
+        repo_url = "https://github.com/robolaunch/UGV"
+        repo_branch = "master"
+
+
+        is_exist = os.path.exists(ws_path_inside_workspace)
+        if is_exist:
+            print("ws_path is: " + ws_path_inside_workspace)
+            shutil.rmtree(ws_path_inside_workspace)
+        else:
+            if not os.path.exists(ws_path):
+                os.makedirs(ws_path)
+
+        # get current directory
+        current_dir = os.getcwd()
+
+        # change the working directory to ws path
+        os.chdir(ws_path)
+
+        # execute command "git clone repo_url"
+        os.system("git clone " + repo_url)
+
+        os.chdir(repo_name)
+
+        # change the git repo branch to repo_branch
+        os.system("git checkout " + repo_branch)
+
+        os.system("rosdep install --from-paths src --ignore-src -r -y")
+
+        os.system("catkin build")
+
+        os.chdir(current_dir)
+
+        return jsonify([{"launch_package": "husky_gazebo", "launch_file": "husky_gazebo_part_headless1.launch"},
+                        {"launch_package": "husky_control", "launch_file": "husky_control_headless2.launch"},
+                        {"launch_package": "husky_gazebo", "launch_file": "final_headless3.launch"},])
+
+
 class ROS2Topic(Resource):
     def get(self):
         globals.general_lock.acquire()
@@ -287,6 +338,7 @@ if __name__ == "__main__":
         api.add_resource(ROS1NetworkInfo, '/ros1/network')
         api.add_resource(ROS1ActionInfo, '/ros1/actions')
         api.add_resource(ROSBagCommand, '/ros1/bag')
+        api.add_resource(ROS1Launch, '/ros1/launch')
 
     elif globals.ROS_VERSION == 2:
         api.add_resource(ROS2Topic, '/ros2/topics')
