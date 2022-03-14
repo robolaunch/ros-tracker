@@ -46,7 +46,7 @@ python3 -m pytest
 ### To-Do
 - [ ] System Info
 - - [X] Total CPU usage
-- - [ ] Each core usage
+- - [X] Each core usage
 - - [X] Memory usage
 - - [X] Network usage
 - - [ ] Some network statistics may be needed here?
