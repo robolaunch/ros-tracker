@@ -77,7 +77,7 @@ python3 -m pytest
 - - [ ] Latency
 - - [ ] Publisher/Subscriber throughput
 - - [ ] Heartbeat count
-- - [ ] GPU usage
+- - [X] GPU usage
 - - [ ] Network info other than ROS2 gives for QoS
 
 ### Roadmap:

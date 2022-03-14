@@ -1,7 +1,10 @@
 import GPUtil
 
 def getGPUInfo():
-    gpus = GPUtil.getGPUs()
+    try:
+        gpus = GPUtil.getGPUs()
+    except:
+        return "GPU info not available"
     gpu_info = []
     for gpu in gpus:
         # get the GPU id
