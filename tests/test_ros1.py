@@ -16,19 +16,19 @@ from globals import CannotParseError, NoROScoreError
 # this class is used to test the ROS1 class
 class TestROS1Parsers:
     
-    ############ parseTopic tests ############
+    ############ parseTopicorAction tests ############
     @pytest.mark.parametrize("test_input, expected", getTogetherTests("test_inputs/ROS1/parseTopic", "test_outputs/ROS1/parseTopic"))
-    def test_parseTopic(self, test_input, expected):
+    def test_parseTopicAction(self, test_input, expected):
         # parse the test string
-        parsed_topics = ROS1.parseTopic(test_input)
+        parsed_topics = ROS1.parseTopicorAction(test_input)
         # compare the parsed topics with the expected result
         assert parsed_topics == json.loads(expected)
 
     @pytest.mark.parametrize("test_input, expected", [["", ""]])
-    def test_parseTopic_EmptyString(self, test_input, expected):
+    def test_parseTopicorAction_EmptyString(self, test_input, expected):
         with pytest.raises(CannotParseError):
             # parse the test string
-            ROS1.parseTopic(test_input)
+            ROS1.parseTopicorAction(test_input)
 
     @pytest.mark.parametrize("test_input, expected", 
                             [["KAE Robolaunch", "42"], # completely different format
@@ -37,10 +37,10 @@ class TestROS1Parsers:
                             ["Type: asd\nPublishers: q b\nSubcribers: a b c", "42"], # * is missing in Publishers
                             ["Type:\n\nPublishers: * q b\n\nSubs: a b c", "42"] # type info is missing
                             ])
-    def test_parseTopic_CorruptedString(self, test_input, expected):
+    def test_parseTopicorAction_CorruptedString(self, test_input, expected):
         with pytest.raises(CannotParseError):
             # parse the test string
-            ROS1.parseTopic(test_input)
+            ROS1.parseTopicorAction(test_input)
 
     
     ############ parseNode tests ############
@@ -144,8 +144,8 @@ class TestROS1CLISuccess:
  
     # a test that uses roscore fixture, then checks if the getTopics method runs without no exceptions
     @pytest.mark.usefixtures("ROS1Prepare")
-    def test_ROS1_getTopics(roscore):
-        ROS1.getTopics()
+    def test_ROS1_getTopicsActions(roscore):
+        ROS1.getTopicsActions()
 
 # All tests here should give an exception because ROScore is not running in this class
 class TestROS1CLIFailure:
@@ -158,6 +158,6 @@ class TestROS1CLIFailure:
         with pytest.raises(NoROScoreError):
             ROS1.getNodes()
 
-    def test_getTopics_Exception(self):
+    def test_getTopicActions_Exception(self):
         with pytest.raises(NoROScoreError):
-            ROS1.getTopics()
+            ROS1.getTopicsActions()
