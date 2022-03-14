@@ -1,5 +1,7 @@
+from distutils.command.build import build
 from flask import Flask, jsonify, request
 from flask_restful import Api, Resource
+from enum import Enum
 import system_info
 from ros1_info import ROS1
 from ros2_info import ROS2
@@ -11,10 +13,21 @@ from std_msgs.msg import String
 from rosbag import ROSBag
 import os
 import shutil
+from threading import Lock
 
 # start a Flask web server
 app = Flask(__name__)
 api = Api(app)
+
+class BuildingState(Enum):
+    IDLE = 0
+    PULLING = 1
+    ROSDEP = 2
+    BUILDING = 3
+    DONE = 4
+
+building_lock = Lock()
+building_state = BuildingState.IDLE
 
 
 def ros2Loop():
@@ -259,21 +272,12 @@ class ROSBagCommand(Resource):
             #------------------------------
 
 class ROS1Launch(Resource):
-    def put(self):
-        # get arguments
-        package_names = request.form["package_names"]
-        launch_files = request.form["launch_files"]
-        repo_url = request.form["repo_url"]
-        repo_branch = request.form["repo_branch"]
-        repo_name = "UGV" # I will detect it later...
-        #TODO need to control these paths later!
-        ws_path = request.form["ws_path"]
-        ws_path_inside_workspace = request.form["ws_path"] + "/" + repo_name
-
+    @staticmethod
+    def buildThread(repo_name, ws_path, ws_path_inside_workspace):
+        global building_state, building_lock
         # overrides for now...
         repo_url = "https://github.com/robolaunch/UGV"
         repo_branch = "master"
-
 
         is_exist = os.path.exists(ws_path_inside_workspace)
         if is_exist:
@@ -289,6 +293,9 @@ class ROS1Launch(Resource):
         # change the working directory to ws path
         os.chdir(ws_path)
 
+        building_lock.acquire()
+        building_state = BuildingState.PULLING
+        building_lock.release()
         # execute command "git clone repo_url"
         os.system("git clone " + repo_url)
 
@@ -297,15 +304,57 @@ class ROS1Launch(Resource):
         # change the git repo branch to repo_branch
         os.system("git checkout " + repo_branch)
 
+        building_lock.acquire()
+        building_state = BuildingState.ROSDEP
+        building_lock.release()
         os.system("rosdep install --from-paths src --ignore-src -r -y")
 
+        building_lock.acquire()
+        building_state = BuildingState.BUILDING
+        building_lock.release()
         os.system("catkin build")
 
         os.chdir(current_dir)
+
+        building_lock.acquire()
+        building_state = BuildingState.DONE
+        building_lock.release()
+
+    def put(self):
+        # get arguments
+        package_names = request.form["package_names"]
+        launch_files = request.form["launch_files"]
+        repo_url = request.form["repo_url"]
+        repo_branch = request.form["repo_branch"]
+        repo_name = "UGV" # I will detect it later...
+        #TODO need to control these paths later!
+        ws_path = request.form["ws_path"]
+        ws_path_inside_workspace = request.form["ws_path"] + "/" + repo_name
+
+        # start build thread...
+        __thread = Thread(target = ROS1Launch.buildThread, args = (repo_name, ws_path, ws_path_inside_workspace))
+        __thread.start()
         
         return jsonify([{"launch_package": "husky_gazebo", "launch_file": "husky_gazebo_part_headless1.launch"},
                         {"launch_package": "husky_control", "launch_file": "husky_control_headless2.launch"},
                         {"launch_package": "husky_gazebo", "launch_file": "final_headless3.launch"},])
+
+class ROS1LaunchTracker(Resource):
+    def get(self):
+        global building_state, building_lock
+        building_lock.acquire()
+        output = building_state
+        building_lock.release()
+        if output == BuildingState.PULLING:
+            return jsonify({"status": "pulling"})
+        elif output == BuildingState.ROSDEP:
+            return jsonify({"status": "rosdep"})
+        elif output == BuildingState.BUILDING:
+            return jsonify({"status": "building"})
+        elif output == BuildingState.DONE:
+            return jsonify({"status": "done"})
+        else:
+            return jsonify({"status": "error"})
 
 
 class ROS2Topic(Resource):
@@ -357,6 +406,7 @@ if __name__ == "__main__":
         api.add_resource(ROS1ActionInfo, '/ros1/actions')
         api.add_resource(ROSBagCommand, '/ros1/bag')
         api.add_resource(ROS1Launch, '/ros1/launch')
+        api.add_resource(ROS1LaunchTracker, '/ros1/launch/track')
 
     elif globals.ROS_VERSION == 2:
         api.add_resource(ROS2Topic, '/ros2/topics')
