@@ -13,6 +13,7 @@ Currently the following addresses are in use:
 /processes
 /rosX/topics
 /rosX/services
+/rosX/actions
 /rosX/nodes
 /rosX/network
 /rosX/bag
@@ -26,6 +27,8 @@ X is either 1 or 2.
 `topics` gives a list of ROS topics.
 
 `services` gives a list of ROS services.
+
+`actions` gives a list of ROS actions.
 
 `nodes` gives a list of ROS nodes.
 
