@@ -250,6 +250,7 @@ class ROS1Launch(Resource):
         repo_url = request.form["repo_url"]
         repo_branch = request.form["repo_branch"]
         repo_name = "UGV" # I will detect it later...
+        #TODO need to control these paths later!
         ws_path = request.form["ws_path"]
         ws_path_inside_workspace = request.form["ws_path"] + "/" + repo_name
 
