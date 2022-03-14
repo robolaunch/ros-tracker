@@ -31,6 +31,7 @@ cpu_core_usage = None
 network_usage = None
 process_list = None
 uptime = None
+gpu_info = None
 
 rosbag_lock = Lock()
 rosbag_start_list = []

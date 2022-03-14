@@ -3,6 +3,7 @@ from flask_restful import Api, Resource
 import system_info
 from ros1_info import ROS1
 from ros2_info import ROS2
+from gpu_info import getGPUInfo
 import globals
 from threading import Thread
 import time
@@ -132,6 +133,11 @@ def systemLoop():
         #current_time = time.time()
         """
 
+        temp_gpu_info = getGPUInfo()
+        globals.general_lock.acquire()
+        globals.gpu_info = temp_gpu_info
+        globals.general_lock.release()
+
         time.sleep(globals.UPDATE_FREQUENCY)
 
 def ros1Node():
@@ -187,6 +193,16 @@ class Processes(Resource):
         output = {"process_list": globals.process_list}
         globals.general_lock.release()
         return jsonify(output)
+class GPUInfo(Resource):
+    def get(self):
+        print("called get")
+        globals.general_lock.acquire()
+        print("acquired")
+        output = {"gpu_info": globals.gpu_info}
+        globals.general_lock.release()
+        return jsonify(output)
+
+
 class ROS1Topic(Resource):
     def get(self):
         globals.general_lock.acquire()
@@ -330,6 +346,7 @@ if __name__ == "__main__":
     # add the class to the API
     api.add_resource(SystemInfo, '/system')
     api.add_resource(Processes, '/processes')
+    api.add_resource(GPUInfo, '/gpu')
     print("ROS version: " + str(globals.ROS_VERSION))
     
     if globals.ROS_VERSION == 1:
@@ -350,4 +367,4 @@ if __name__ == "__main__":
         api.add_resource(ROSBagCommand, '/ros2/bag')
 
 
-    app.run(host="0.0.0.0", debug=True, use_reloader=False)
+    app.run(debug=True, use_reloader=False)
