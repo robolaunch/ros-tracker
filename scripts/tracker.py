@@ -260,7 +260,6 @@ class ROSBagCommand(Resource):
 
 class ROS1Launch(Resource):
     def put(self):
-        """
         # get arguments
         package_names = request.form["package_names"]
         launch_files = request.form["launch_files"]
@@ -303,7 +302,7 @@ class ROS1Launch(Resource):
         os.system("catkin build")
 
         os.chdir(current_dir)
-        """
+        
         return jsonify([{"launch_package": "husky_gazebo", "launch_file": "husky_gazebo_part_headless1.launch"},
                         {"launch_package": "husky_control", "launch_file": "husky_control_headless2.launch"},
                         {"launch_package": "husky_gazebo", "launch_file": "final_headless3.launch"},])
