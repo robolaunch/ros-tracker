@@ -4,7 +4,14 @@ def getGPUInfo():
     try:
         gpus = GPUtil.getGPUs()
     except:
-        return "GPU info not available"
+        return [{"gpu_id": -1, 
+                "gpu_name": "Unknown", 
+                "gpu_load": 0, 
+                "gpu_free_memory": 0, 
+                "gpu_used_memory": 0, 
+                "gpu_total_memory": 0, 
+                "gpu_temperature": 0, 
+                "gpu_uuid": "Unknown"}]
     gpu_info = []
     for gpu in gpus:
         # get the GPU id
